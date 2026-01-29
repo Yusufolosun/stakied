@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 import { Cl } from "@stacks/transactions";
+import { initSimnet } from "@hirosystems/clarinet-sdk";
+
+const simnet = await initSimnet();
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
