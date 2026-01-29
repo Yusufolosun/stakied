@@ -86,4 +86,77 @@ describe("PT/YT Core Tests", () => {
       expect(mint.result).toBeErr(Cl.uint(202)); // err-invalid-amount
     });
   });
+
+  describe("PT Redemption", () => {
+    it("redeems PT after maturity", () => {
+      const maturity = 100;
+      
+      // Mint PT/YT first
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Advance to maturity
+      simnet.mineEmptyBlocks(maturity + 10);
+
+      // Redeem PT
+      const redeem = simnet.callPublicFn(
+        "pt-yt-core",
+        "redeem-matured-pt",
+        [Cl.uint(500000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(redeem.result).toBeOk(Cl.uint(500000));
+
+      // Verify remaining balance
+      const ptBalance = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-pt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity)],
+        wallet1
+      );
+      expect(ptBalance.result).toBeOk(Cl.uint(500000));
+    });
+
+    it("fails to redeem PT before maturity", () => {
+      const maturity = 10000;
+      
+      // Mint PT/YT
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Try to redeem before maturity
+      const redeem = simnet.callPublicFn(
+        "pt-yt-core",
+        "redeem-matured-pt",
+        [Cl.uint(500000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(redeem.result).toBeErr(Cl.uint(204)); // err-maturity-not-reached
+    });
+
+    it("fails with insufficient PT balance", () => {
+      const maturity = 100;
+      
+      simnet.mineEmptyBlocks(maturity + 10);
+
+      const redeem = simnet.callPublicFn(
+        "pt-yt-core",
+        "redeem-matured-pt",
+        [Cl.uint(500000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(redeem.result).toBeErr(Cl.uint(203)); // err-insufficient-balance
+    });
+  });
 });

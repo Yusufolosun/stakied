@@ -58,3 +58,23 @@
     (ok {pt: sy-amount, yt: sy-amount})
   )
 )
+
+(define-public (redeem-matured-pt (pt-amount uint) (maturity uint))
+  (begin
+    (asserts! (> pt-amount u0) err-invalid-amount)
+    (asserts! (>= stacks-block-height maturity) err-maturity-not-reached)
+    
+    (let ((user-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
+      (asserts! (>= user-pt-balance pt-amount) err-insufficient-balance)
+      
+      ;; Burn PT tokens
+      (map-set pt-balances {user: tx-sender, maturity: maturity} (- user-pt-balance pt-amount))
+      (map-set pt-total-supply maturity (- (default-to u0 (map-get? pt-total-supply maturity)) pt-amount))
+      
+      ;; TODO: Transfer SY back to user (1:1 redemption)
+      
+      (print {action: "redeem-pt", user: tx-sender, amount: pt-amount, maturity: maturity})
+      (ok pt-amount)
+    )
+  )
+)
