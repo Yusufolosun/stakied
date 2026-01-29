@@ -182,4 +182,62 @@ describe("SY Token Tests", () => {
       expect(balance2.result).toBeOk(Cl.uint(300000));
     });
   });
+
+  describe("Edge Cases", () => {
+    it("prevents transfer of more than balance", () => {
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(100)], wallet1);
+
+      const transfer = simnet.callPublicFn(
+        "sy-token",
+        "transfer",
+        [
+          Cl.uint(200),
+          Cl.principal(wallet1),
+          Cl.principal(wallet2),
+          Cl.none(),
+        ],
+        wallet1
+      );
+
+      expect(transfer.result).toBeErr(Cl.uint(103));
+    });
+
+    it("rejects zero amount deposit", () => {
+      const deposit = simnet.callPublicFn(
+        "sy-token",
+        "deposit",
+        [Cl.uint(0)],
+        wallet1
+      );
+
+      expect(deposit.result).toBeErr(Cl.uint(102));
+    });
+
+    it("rejects zero amount redeem", () => {
+      const redeem = simnet.callPublicFn(
+        "sy-token",
+        "redeem",
+        [Cl.uint(0)],
+        wallet1
+      );
+
+      expect(redeem.result).toBeErr(Cl.uint(102));
+    });
+
+    it("rejects zero amount transfer", () => {
+      const transfer = simnet.callPublicFn(
+        "sy-token",
+        "transfer",
+        [
+          Cl.uint(0),
+          Cl.principal(wallet1),
+          Cl.principal(wallet2),
+          Cl.none(),
+        ],
+        wallet1
+      );
+
+      expect(transfer.result).toBeErr(Cl.uint(102));
+    });
+  });
 });
