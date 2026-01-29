@@ -42,3 +42,20 @@
 
 (define-read-only (get-token-uri)
   (ok (var-get token-uri)))
+
+(define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
+  (begin
+    (asserts! (is-eq tx-sender sender) err-not-authorized)
+    (asserts! (> amount u0) err-invalid-amount)
+    
+    (let ((sender-balance (default-to u0 (map-get? balances sender))))
+      (asserts! (>= sender-balance amount) err-insufficient-balance)
+      
+      (map-set balances sender (- sender-balance amount))
+      (map-set balances recipient (+ (default-to u0 (map-get? balances recipient)) amount))
+      
+      (print {action: "transfer", sender: sender, recipient: recipient, amount: amount, memo: memo})
+      (ok true)
+    )
+  )
+)
