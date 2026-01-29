@@ -5,10 +5,13 @@
 Stakied enables splitting yield-bearing assets (liquid staked STX) into Principal Tokens (PT) and Yield Tokens (YT), unlocking fixed-rate DeFi on Bitcoin L2.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)](https://github.com/Yusufolosun/stakied)
+[![Clarity](https://img.shields.io/badge/Clarity-2.0-blue.svg)](https://docs.stacks.co/clarity)
+[![Stacks](https://img.shields.io/badge/Stacks-Mainnet-purple.svg)](https://www.stacks.co/)
 
 ## 🎯 Overview
 
-Stakied is a yield tokenization protocol for the Stacks blockchain, similar to Pendle Finance on Ethereum. It allows users to:
+Stakied is the **first yield tokenization protocol** for the Stacks blockchain, bringing Pendle-style yield trading to Bitcoin L2. It allows users to:
 
 - **Separate principal from yield**: Split yield-bearing stSTX into two distinct tokens
 - **Trade future yield**: YT holders can trade their future yield rights
@@ -196,26 +199,29 @@ clarinet console
 - [SY Contract API](docs/SY_CONTRACT.md) - SY token functions and usage
 - [PT/YT Contract API](docs/PT_YT_CONTRACT.md) - PT/YT functions and usage
 
+## 🚀 Deployment
+
+### Testnet
+See [Testnet Deployment Guide](docs/TESTNET_DEPLOYMENT.md) for testing instructions.
+
+### Mainnet
+See [Mainnet Deployment Guide](docs/MAINNET_DEPLOYMENT.md) for production deployment.
+
+Contract addresses available in [deployments/](deployments/) directory.
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+### Quick Start for Contributors
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Commit Convention
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation updates
-- `test:` - Test additions/updates
-- `refactor:` - Code refactoring
-- `chore:` - Tooling/config changes
+All PRs must pass tests and contract validation.
 
 ## 📄 License
 
@@ -226,12 +232,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by [Pendle Finance](https://www.pendle.finance/) on Ethereum
 - Built on [Stacks](https://www.stacks.co/) blockchain
 - Powered by [Clarity](https://clarity-lang.org/) smart contracts
+- Built for [Talent Protocol Stacks Builder Campaign](https://talentprotocol.com/)
 
 ## 📞 Contact
 
 - GitHub: [@Yusufolosun](https://github.com/Yusufolosun)
-- Project Link: [https://github.com/Yusufolosun/stakied](https://github.com/Yusufolosun/stakied)
+- Project: [https://github.com/Yusufolosun/stakied](https://github.com/Yusufolosun/stakied)
 
 ---
+
+**⚡ Built with Bitcoin-native DeFi in mind**
 
 **⚠️ Disclaimer**: This is experimental software. Use at your own risk. The contracts have not been professionally audited yet (Phase 2).
