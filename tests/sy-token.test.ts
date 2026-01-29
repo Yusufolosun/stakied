@@ -52,3 +52,53 @@ describe("SY Token - Read-Only Functions", () => {
   });
 });
 
+describe("SY Token - Deposit Function", () => {
+  it("should mint SY tokens correctly", () => {
+    const deposit = simnet.callPublicFn(
+      "sy-token",
+      "deposit",
+      [Cl.uint(1000000)],
+      wallet1
+    );
+
+    expect(deposit.result).toBeOk(Cl.uint(1000000));
+
+    const balance = simnet.callReadOnlyFn(
+      "sy-token",
+      "get-balance",
+      [Cl.principal(wallet1)],
+      wallet1
+    );
+    expect(balance.result).toBeOk(Cl.uint(1000000));
+
+    const totalSupply = simnet.callReadOnlyFn("sy-token", "get-total-supply", [], deployer);
+    expect(totalSupply.result).toBeOk(Cl.uint(1000000));
+  });
+
+  it("should fail to deposit zero amount", () => {
+    const deposit = simnet.callPublicFn(
+      "sy-token",
+      "deposit",
+      [Cl.uint(0)],
+      wallet1
+    );
+
+    expect(deposit.result).toBeErr(Cl.uint(102)); // err-invalid-amount
+  });
+
+  it("should accumulate deposits correctly", () => {
+    simnet.callPublicFn("sy-token", "deposit", [Cl.uint(500000)], wallet1);
+    const deposit2 = simnet.callPublicFn("sy-token", "deposit", [Cl.uint(300000)], wallet1);
+
+    expect(deposit2.result).toBeOk(Cl.uint(300000));
+
+    const balance = simnet.callReadOnlyFn(
+      "sy-token",
+      "get-balance",
+      [Cl.principal(wallet1)],
+      wallet1
+    );
+    expect(balance.result).toBeOk(Cl.uint(800000));
+  });
+});
+
