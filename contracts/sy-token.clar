@@ -1,0 +1,44 @@
+;; Stakied SY Token - Standardized Yield Wrapper
+;; Wraps stSTX (liquid staked STX) into standardized yield-bearing token
+
+(impl-trait .sip-010-trait.sip-010-trait)
+
+;; Constants
+(define-constant contract-owner tx-sender)
+(define-constant err-owner-only (err u100))
+(define-constant err-not-authorized (err u101))
+(define-constant err-invalid-amount (err u102))
+(define-constant err-insufficient-balance (err u103))
+(define-constant err-transfer-failed (err u104))
+
+;; Token metadata
+(define-constant token-name "Stakied Standardized Yield")
+(define-constant token-symbol "SY-stSTX")
+(define-constant token-decimals u6)
+
+;; Data variables
+(define-data-var token-uri (optional (string-utf8 256)) none)
+(define-data-var total-supply uint u0)
+
+;; Data maps
+(define-map balances principal uint)
+(define-map allowances {owner: principal, spender: principal} uint)
+
+;; Read-only functions for SIP-010 compliance
+(define-read-only (get-name)
+  (ok token-name))
+
+(define-read-only (get-symbol)
+  (ok token-symbol))
+
+(define-read-only (get-decimals)
+  (ok token-decimals))
+
+(define-read-only (get-balance (account principal))
+  (ok (default-to u0 (map-get? balances account))))
+
+(define-read-only (get-total-supply)
+  (ok (var-get total-supply)))
+
+(define-read-only (get-token-uri)
+  (ok (var-get token-uri)))
