@@ -1,0 +1,36 @@
+;; Stakied PT/YT Core - Principal & Yield Token Minting/Redemption
+
+;; Constants
+(define-constant contract-owner tx-sender)
+(define-constant err-owner-only (err u200))
+(define-constant err-not-authorized (err u201))
+(define-constant err-invalid-amount (err u202))
+(define-constant err-insufficient-balance (err u203))
+(define-constant err-maturity-not-reached (err u204))
+(define-constant err-already-matured (err u205))
+(define-constant err-invalid-maturity (err u206))
+
+;; Data variables
+(define-data-var sy-contract principal contract-owner)
+
+;; PT (Principal Token) data
+(define-map pt-balances {user: principal, maturity: uint} uint)
+(define-map pt-total-supply uint uint)
+
+;; YT (Yield Token) data
+(define-map yt-balances {user: principal, maturity: uint} uint)
+(define-map yt-total-supply uint uint)
+(define-map yt-claimed-yield {user: principal, maturity: uint} uint)
+
+;; Read-only functions
+(define-read-only (get-pt-balance (user principal) (maturity uint))
+  (ok (default-to u0 (map-get? pt-balances {user: user, maturity: maturity}))))
+
+(define-read-only (get-yt-balance (user principal) (maturity uint))
+  (ok (default-to u0 (map-get? yt-balances {user: user, maturity: maturity}))))
+
+(define-read-only (get-pt-total-supply (maturity uint))
+  (ok (default-to u0 (map-get? pt-total-supply maturity))))
+
+(define-read-only (get-yt-total-supply (maturity uint))
+  (ok (default-to u0 (map-get? yt-total-supply maturity))))
