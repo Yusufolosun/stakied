@@ -20,18 +20,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Deploy SIP-010 trait
-echo "Deploying SIP-010 trait..."
-clarinet deployments apply -p mainnet --contracts sip-010-trait
-
-# Deploy SY Token
-echo "Deploying SY Token..."
-clarinet deployments apply -p mainnet --contracts sy-token
-
-# Deploy PT/YT Core
-echo "Deploying PT/YT Core..."
-clarinet deployments apply -p mainnet --contracts pt-yt-core
+# Deploy all contracts to mainnet
+echo "Deploying contracts..."
+clarinet deployments apply --mainnet
 
 echo "✅ MAINNET DEPLOYMENT COMPLETE!"
 echo "🎉 Stakied is now live on Stacks!"
-echo "Check addresses in deployments/MAINNET_ADDRESSES.md"
+echo "Check transaction details in the output above"
