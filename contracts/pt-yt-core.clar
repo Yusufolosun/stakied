@@ -40,7 +40,8 @@
     (asserts! (> sy-amount u0) err-invalid-amount)
     (asserts! (> maturity stacks-block-height) err-invalid-maturity)
     
-    ;; TODO: Transfer SY from user to this contract
+    ;; TODO Phase 2: Transfer SY from user to this contract
+    ;; This will require implementing a custodial pattern or using contract-call with proper authorization
     
     ;; Mint PT tokens
     (let ((current-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
@@ -71,7 +72,7 @@
       (map-set pt-balances {user: tx-sender, maturity: maturity} (- user-pt-balance pt-amount))
       (map-set pt-total-supply maturity (- (default-to u0 (map-get? pt-total-supply maturity)) pt-amount))
       
-      ;; TODO: Transfer SY back to user (1:1 redemption)
+      ;; TODO Phase 2: Transfer SY back to user (1:1 redemption)
       
       (print {action: "redeem-pt", user: tx-sender, amount: pt-amount, maturity: maturity})
       (ok pt-amount)
@@ -98,7 +99,7 @@
       (map-set yt-balances {user: tx-sender, maturity: maturity} (- user-yt-balance amount))
       (map-set yt-total-supply maturity (- (default-to u0 (map-get? yt-total-supply maturity)) amount))
       
-      ;; TODO: Transfer SY back to user
+      ;; TODO Phase 2: Return SY to user
       
       (print {action: "redeem-pt-yt", user: tx-sender, amount: amount, maturity: maturity})
       (ok amount)
