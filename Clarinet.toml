@@ -5,6 +5,14 @@ authors = []
 telemetry = true
 cache_dir = "./.cache"
 
+[contracts.sip-010-trait]
+path = "contracts/traits/sip-010-trait.clar"
+epoch = "latest"
+
+[contracts.sy-token]
+path = "contracts/sy-token.clar"
+epoch = "latest"
+
 # [contracts.counter]
 # path = "contracts/counter.clar"
 # epoch = "latest"
