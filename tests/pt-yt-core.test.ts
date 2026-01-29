@@ -222,4 +222,71 @@ describe("PT/YT Core Tests", () => {
       expect(recombine.result).toBeErr(Cl.uint(203)); // err-insufficient-balance
     });
   });
+
+  describe("YT Yield Claiming", () => {
+    it("allows YT holders to claim yield", () => {
+      const maturity = 10000;
+      
+      // Mint YT
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Claim yield
+      const claim = simnet.callPublicFn(
+        "pt-yt-core",
+        "claim-yield",
+        [Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(claim.result).toBeOk(Cl.uint(8000000)); // 1000000 * 8
+    });
+
+    it("prevents double claiming", () => {
+      const maturity = 10000;
+      
+      // Mint YT
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // First claim
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "claim-yield",
+        [Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Second claim should fail (no more claimable)
+      const claim2 = simnet.callPublicFn(
+        "pt-yt-core",
+        "claim-yield",
+        [Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(claim2.result).toBeErr(Cl.uint(202)); // err-invalid-amount
+    });
+
+    it("fails to claim with no YT balance", () => {
+      const maturity = 10000;
+      
+      const claim = simnet.callPublicFn(
+        "pt-yt-core",
+        "claim-yield",
+        [Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(claim.result).toBeErr(Cl.uint(202)); // err-invalid-amount
+    });
+  });
 });

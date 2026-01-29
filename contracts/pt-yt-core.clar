@@ -105,3 +105,37 @@
     )
   )
 )
+
+(define-read-only (calculate-claimable-yield (user principal) (maturity uint))
+  (let (
+    (user-yt-balance (default-to u0 (map-get? yt-balances {user: user, maturity: maturity})))
+    (total-yt-supply (default-to u1 (map-get? yt-total-supply maturity)))
+    (already-claimed (default-to u0 (map-get? yt-claimed-yield {user: user, maturity: maturity})))
+  )
+    ;; Simplified: assume 8% APY prorata distribution
+    ;; Real implementation would query SY contract for actual yield
+    (let ((total-yield (* user-yt-balance u8)))
+      (ok (if (> total-yield already-claimed)
+            (- total-yield already-claimed)
+            u0))
+    )
+  )
+)
+
+(define-public (claim-yield (maturity uint))
+  (let (
+    (claimable (unwrap! (calculate-claimable-yield tx-sender maturity) err-invalid-amount))
+  )
+    (asserts! (> claimable u0) err-invalid-amount)
+    
+    ;; Update claimed amount
+    (let ((already-claimed (default-to u0 (map-get? yt-claimed-yield {user: tx-sender, maturity: maturity}))))
+      (map-set yt-claimed-yield {user: tx-sender, maturity: maturity} (+ already-claimed claimable))
+    )
+    
+    ;; TODO: Transfer yield (STX or SY) to user
+    
+    (print {action: "claim-yield", user: tx-sender, amount: claimable, maturity: maturity})
+    (ok claimable)
+  )
+)
