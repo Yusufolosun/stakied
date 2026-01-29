@@ -19,6 +19,8 @@
 ;; Data variables
 (define-data-var token-uri (optional (string-utf8 256)) none)
 (define-data-var total-supply uint u0)
+(define-data-var exchange-rate uint u1000000) ;; 1:1 initially (6 decimals)
+(define-data-var last-yield-update uint u0)
 
 ;; Data maps
 (define-map balances principal uint)
@@ -42,6 +44,9 @@
 
 (define-read-only (get-token-uri)
   (ok (var-get token-uri)))
+
+(define-read-only (get-exchange-rate)
+  (ok (var-get exchange-rate)))
 
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
   (begin
@@ -92,5 +97,15 @@
       (print {action: "redeem", user: tx-sender, amount: amount})
       (ok amount)
     )
+  )
+)
+
+(define-public (update-exchange-rate (new-rate uint))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (> new-rate u0) err-invalid-amount)
+    (var-set exchange-rate new-rate)
+    (var-set last-yield-update block-height)
+    (ok true)
   )
 )
