@@ -1,0 +1,32 @@
+---
+id: 0
+name: Mainnet deployment
+network: mainnet
+stacks-node: "https://api.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoin.blockstack.com:8332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: pt-yt-core
+            expected-sender: SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193
+            cost: 58700
+            path: "contracts\\pt-yt-core.clar"
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: sip-010-trait
+            expected-sender: SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193
+            cost: 6470
+            path: "contracts\\traits\\sip-010-trait.clar"
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: sy-token
+            expected-sender: SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193
+            cost: 35090
+            path: "contracts\\sy-token.clar"
+            anchor-block-only: true
+            clarity-version: 4
+      epoch: "3.3"

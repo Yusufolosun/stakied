@@ -1,31 +1,35 @@
 # Mainnet Contract Addresses
 
-Deployed on: TBD
-Network: Stacks Mainnet
-Deployer: SP...
+**Deployment Status**: ✅ **LIVE ON MAINNET**
+
+**Deployed on**: January 29, 2026  
+**Network**: Stacks Mainnet  
+**Deployer**: SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193  
+**Total Cost**: 0.100260 STX
 
 ## Contracts
 
-- **SIP-010 Trait:** `SP...` (pending deployment)
-- **SY Token:** `SP...` (pending deployment)
-- **PT/YT Core:** `SP...` (pending deployment)
+- **SIP-010 Trait:** `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sip-010-trait` ✅
+- **SY Token:** `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sy-token` ✅
+- **PT/YT Core:** `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.pt-yt-core` ✅
 
 ## Explorer Links
 
-- SY Token: https://explorer.hiro.so/txid/SP...?chain=mainnet
-- PT/YT Core: https://explorer.hiro.so/txid/SP...?chain=mainnet
+- **SIP-010 Trait**: https://explorer.hiro.so/txid/SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sip-010-trait?chain=mainnet
+- **SY Token**: https://explorer.hiro.so/txid/SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sy-token?chain=mainnet
+- **PT/YT Core**: https://explorer.hiro.so/txid/SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.pt-yt-core?chain=mainnet
 
 ## Verification
 
-All contracts will be deployed and verified on-chain.
+✅ All contracts deployed and confirmed on-chain.
 
 ## Cost Breakdown
 
-Expected costs:
-- SIP-010 Trait: ~$0.02
-- SY Token: ~$0.12
-- PT/YT Core: ~$0.15
-- **Total:** ~$0.29
+Actual deployment costs:
+- SIP-010 Trait: 0.006470 STX
+- SY Token: 0.035090 STX
+- PT/YT Core: 0.058700 STX
+- **Total:** 0.100260 STX
 
 ## Deployment Command
 
