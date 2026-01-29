@@ -34,3 +34,27 @@
 
 (define-read-only (get-yt-total-supply (maturity uint))
   (ok (default-to u0 (map-get? yt-total-supply maturity))))
+
+(define-public (mint-pt-yt (sy-amount uint) (maturity uint))
+  (begin
+    (asserts! (> sy-amount u0) err-invalid-amount)
+    (asserts! (> maturity stacks-block-height) err-invalid-maturity)
+    
+    ;; TODO: Transfer SY from user to this contract
+    
+    ;; Mint PT tokens
+    (let ((current-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
+      (map-set pt-balances {user: tx-sender, maturity: maturity} (+ current-pt-balance sy-amount))
+      (map-set pt-total-supply maturity (+ (default-to u0 (map-get? pt-total-supply maturity)) sy-amount))
+    )
+    
+    ;; Mint YT tokens (same amount as PT)
+    (let ((current-yt-balance (default-to u0 (map-get? yt-balances {user: tx-sender, maturity: maturity}))))
+      (map-set yt-balances {user: tx-sender, maturity: maturity} (+ current-yt-balance sy-amount))
+      (map-set yt-total-supply maturity (+ (default-to u0 (map-get? yt-total-supply maturity)) sy-amount))
+    )
+    
+    (print {action: "mint-pt-yt", user: tx-sender, amount: sy-amount, maturity: maturity})
+    (ok {pt: sy-amount, yt: sy-amount})
+  )
+)
