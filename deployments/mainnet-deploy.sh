@@ -12,8 +12,14 @@ echo "🚀 Deploying Stakied to Stacks Mainnet..."
 
 # Final checks
 echo "Running final checks..."
-clarinet check
-clarinet test
+echo "Y" | clarinet check
+
+if [ $? -ne 0 ]; then
+  echo "❌ Contract validation failed - aborting deployment"
+  exit 1
+fi
+
+npm test
 
 if [ $? -ne 0 ]; then
   echo "❌ Tests failed - aborting deployment"
