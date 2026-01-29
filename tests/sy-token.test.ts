@@ -102,3 +102,74 @@ describe("SY Token - Deposit Function", () => {
   });
 });
 
+describe("SY Token - Redeem Function", () => {
+  it("should burn SY tokens correctly", () => {
+    simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], wallet1);
+    
+    const redeem = simnet.callPublicFn(
+      "sy-token",
+      "redeem",
+      [Cl.uint(500000)],
+      wallet1
+    );
+
+    expect(redeem.result).toBeOk(Cl.uint(500000));
+
+    const balance = simnet.callReadOnlyFn(
+      "sy-token",
+      "get-balance",
+      [Cl.principal(wallet1)],
+      wallet1
+    );
+    expect(balance.result).toBeOk(Cl.uint(500000));
+
+    const totalSupply = simnet.callReadOnlyFn("sy-token", "get-total-supply", [], deployer);
+    expect(totalSupply.result).toBeOk(Cl.uint(500000));
+  });
+
+  it("should fail with insufficient balance", () => {
+    const redeem = simnet.callPublicFn(
+      "sy-token",
+      "redeem",
+      [Cl.uint(1000)],
+      wallet1
+    );
+
+    expect(redeem.result).toBeErr(Cl.uint(103)); // err-insufficient-balance
+  });
+
+  it("should fail to redeem zero amount", () => {
+    simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], wallet1);
+    
+    const redeem = simnet.callPublicFn(
+      "sy-token",
+      "redeem",
+      [Cl.uint(0)],
+      wallet1
+    );
+
+    expect(redeem.result).toBeErr(Cl.uint(102)); // err-invalid-amount
+  });
+
+  it("should allow complete redemption", () => {
+    simnet.callPublicFn("sy-token", "deposit", [Cl.uint(750000)], wallet1);
+    
+    const redeem = simnet.callPublicFn(
+      "sy-token",
+      "redeem",
+      [Cl.uint(750000)],
+      wallet1
+    );
+
+    expect(redeem.result).toBeOk(Cl.uint(750000));
+
+    const balance = simnet.callReadOnlyFn(
+      "sy-token",
+      "get-balance",
+      [Cl.principal(wallet1)],
+      wallet1
+    );
+    expect(balance.result).toBeOk(Cl.uint(0));
+  });
+});
+

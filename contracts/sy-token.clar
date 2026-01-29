@@ -76,3 +76,21 @@
     )
   )
 )
+
+(define-public (redeem (amount uint))
+  (begin
+    (asserts! (> amount u0) err-invalid-amount)
+    
+    (let ((current-balance (default-to u0 (map-get? balances tx-sender))))
+      (asserts! (>= current-balance amount) err-insufficient-balance)
+      
+      (map-set balances tx-sender (- current-balance amount))
+      (var-set total-supply (- (var-get total-supply) amount))
+      
+      ;; TODO: Transfer stSTX back to caller
+      
+      (print {action: "redeem", user: tx-sender, amount: amount})
+      (ok amount)
+    )
+  )
+)
