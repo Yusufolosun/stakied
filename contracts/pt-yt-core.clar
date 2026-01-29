@@ -78,3 +78,30 @@
     )
   )
 )
+
+(define-public (redeem-pt-yt (amount uint) (maturity uint))
+  (begin
+    (asserts! (> amount u0) err-invalid-amount)
+    
+    (let (
+      (user-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity})))
+      (user-yt-balance (default-to u0 (map-get? yt-balances {user: tx-sender, maturity: maturity})))
+    )
+      (asserts! (>= user-pt-balance amount) err-insufficient-balance)
+      (asserts! (>= user-yt-balance amount) err-insufficient-balance)
+      
+      ;; Burn PT tokens
+      (map-set pt-balances {user: tx-sender, maturity: maturity} (- user-pt-balance amount))
+      (map-set pt-total-supply maturity (- (default-to u0 (map-get? pt-total-supply maturity)) amount))
+      
+      ;; Burn YT tokens
+      (map-set yt-balances {user: tx-sender, maturity: maturity} (- user-yt-balance amount))
+      (map-set yt-total-supply maturity (- (default-to u0 (map-get? yt-total-supply maturity)) amount))
+      
+      ;; TODO: Transfer SY back to user
+      
+      (print {action: "redeem-pt-yt", user: tx-sender, amount: amount, maturity: maturity})
+      (ok amount)
+    )
+  )
+)

@@ -159,4 +159,67 @@ describe("PT/YT Core Tests", () => {
       expect(redeem.result).toBeErr(Cl.uint(203)); // err-insufficient-balance
     });
   });
+
+  describe("PT+YT Recombination", () => {
+    it("recombines PT+YT to get SY anytime", () => {
+      const maturity = 10000;
+      
+      // Mint PT/YT
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Recombine without waiting for maturity
+      const recombine = simnet.callPublicFn(
+        "pt-yt-core",
+        "redeem-pt-yt",
+        [Cl.uint(600000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(recombine.result).toBeOk(Cl.uint(600000));
+
+      // Verify balances decreased
+      const ptBalance = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-pt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity)],
+        wallet1
+      );
+      expect(ptBalance.result).toBeOk(Cl.uint(400000));
+
+      const ytBalance = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-yt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity)],
+        wallet1
+      );
+      expect(ytBalance.result).toBeOk(Cl.uint(400000));
+    });
+
+    it("fails with insufficient PT", () => {
+      const maturity = 10000;
+      
+      // Mint minimal PT/YT
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(100000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      // Try to recombine more than available
+      const recombine = simnet.callPublicFn(
+        "pt-yt-core",
+        "redeem-pt-yt",
+        [Cl.uint(200000), Cl.uint(maturity)],
+        wallet1
+      );
+
+      expect(recombine.result).toBeErr(Cl.uint(203)); // err-insufficient-balance
+    });
+  });
 });
