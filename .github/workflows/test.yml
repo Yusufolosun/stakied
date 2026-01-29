@@ -1,0 +1,42 @@
+name: Test Smart Contracts
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Clarinet
+        run: |
+          wget -nv https://github.com/hirosystems/clarinet/releases/download/v2.10.0/clarinet-linux-x64.tar.gz
+          tar -xzf clarinet-linux-x64.tar.gz
+          sudo mv clarinet /usr/local/bin/
+          clarinet --version
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check contracts syntax
+        run: clarinet check
+      
+      - name: Run tests
+        run: npm test
+      
+      - name: Generate coverage report
+        if: success()
+        run: npm run coverage
+        continue-on-error: true
