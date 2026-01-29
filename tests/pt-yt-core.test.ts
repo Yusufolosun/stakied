@@ -292,4 +292,60 @@ describe("PT/YT Core Tests", () => {
       expect(claim.result).toBeErr(Cl.uint(202)); // err-invalid-amount
     });
   });
+
+  describe("Multiple Maturities", () => {
+    it("handles multiple maturities independently", () => {
+      const maturity1 = 1000;
+      const maturity2 = 2000;
+      
+      // Mint for first maturity
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(1000000), Cl.uint(maturity1)],
+        wallet1
+      );
+
+      // Mint for second maturity
+      simnet.callPublicFn(
+        "pt-yt-core",
+        "mint-pt-yt",
+        [Cl.uint(2000000), Cl.uint(maturity2)],
+        wallet1
+      );
+
+      // Verify independent balances
+      const pt1 = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-pt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity1)],
+        wallet1
+      );
+      expect(pt1.result).toBeOk(Cl.uint(1000000));
+
+      const pt2 = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-pt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity2)],
+        wallet1
+      );
+      expect(pt2.result).toBeOk(Cl.uint(2000000));
+
+      const yt1 = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-yt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity1)],
+        wallet1
+      );
+      expect(yt1.result).toBeOk(Cl.uint(1000000));
+
+      const yt2 = simnet.callReadOnlyFn(
+        "pt-yt-core",
+        "get-yt-balance",
+        [Cl.principal(wallet1), Cl.uint(maturity2)],
+        wallet1
+      );
+      expect(yt2.result).toBeOk(Cl.uint(2000000));
+    });
+  });
 });
