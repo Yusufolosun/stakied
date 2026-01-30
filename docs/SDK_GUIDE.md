@@ -121,3 +121,26 @@ const txId = await broadcastTransaction(txOptions, network);
 - `senderKey` (string): Private key for signing
 
 **Note:** Minting produces equal amounts of PT and YT.
+
+#### Redeem PT Tokens
+
+Redeem matured PT for SY:
+
+```typescript
+const txOptions = await sdk.ptYt.redeemPt({
+  ptAmount: 500,
+  maturity: 1735689600,
+  minOutput: 495,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `ptAmount` (number): PT tokens to redeem
+- `maturity` (number): Maturity timestamp
+- `minOutput` (number): Minimum SY to receive
+- `senderKey` (string): Private key
+
+**Note:** Can only redeem at or after maturity.
