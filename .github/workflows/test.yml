@@ -20,21 +20,17 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - name: Install Clarinet
-        run: |
-          curl -L https://github.com/hirosystems/clarinet/releases/download/v2.8.0/clarinet-linux-x64.tar.gz -o clarinet.tar.gz
-          tar -xzf clarinet.tar.gz
-          chmod +x clarinet
-          sudo mv clarinet /usr/local/bin/
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Clarinet via npm
+        run: npm install -g @hirosystems/clarinet-cli
       
       - name: Verify Clarinet installation
         run: clarinet --version
       
-      - name: Install dependencies
-        run: npm ci
-      
       - name: Check contracts syntax
-        run: clarinet check
+        run: echo "Y" | clarinet check
       
       - name: Run tests
         run: npm test
