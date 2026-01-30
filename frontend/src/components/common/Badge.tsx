@@ -1,0 +1,14 @@
+import React from 'react';
+
+interface BadgeProps {
+  text: string;
+  variant?: 'success' | 'warning' | 'error' | 'info';
+}
+
+export const Badge: React.FC<BadgeProps> = ({ text, variant = 'info' }) => {
+  return (
+    <span className={`badge badge-${variant}`}>
+      {text}
+    </span>
+  );
+};
