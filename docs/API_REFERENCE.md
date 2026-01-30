@@ -32,3 +32,25 @@ Deposits underlying assets to receive Standardized Yield tokens.
   - `u2` - Invalid amount (zero or negative)
 
 **Access:** Public
+
+#### `redeem`
+
+Redeems SY tokens for underlying assets.
+
+```clarity
+(define-public (redeem (sy-amount uint))
+  (response {asset-amount: uint} uint)
+)
+```
+
+**Parameters:**
+- `sy-amount` (uint): Amount of SY tokens to burn
+
+**Returns:**
+- Success: `(ok {asset-amount: uint})` - Amount of underlying assets returned
+- Error codes:
+  - `u1` - Not authorized
+  - `u2` - Invalid amount
+  - `u3` - Insufficient SY balance
+
+**Access:** Public
