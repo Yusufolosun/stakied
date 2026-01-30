@@ -17,6 +17,10 @@ epoch = "latest"
 path = "contracts/pt-yt-core.clar"
 epoch = "latest"
 
+[contracts.pt-yt-amm]
+path = "contracts/pt-yt-amm.clar"
+epoch = "latest"
+
 # [contracts.counter]
 # path = "contracts/counter.clar"
 # epoch = "latest"
