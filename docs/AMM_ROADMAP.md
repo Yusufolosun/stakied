@@ -26,3 +26,26 @@ The AMM contract implements a decentralized exchange for PT/SY trading with the 
 2. **Price Discovery**: Constant product formula with time-decay adjustment
 3. **Fee Structure**: 0.3% protocol fee on all swaps, distributed to liquidity providers
 4. **LP Tokens**: Fungible tokens representing proportional ownership of pool liquidity
+
+## Time-Decay Pricing Formula
+
+The AMM implements a time-decay mechanism to ensure PT prices approach SY parity at maturity:
+
+```clarity
+;; Time decay factor calculation
+(define-read-only (calculate-time-decay (maturity uint))
+  (let (
+    (blocks-until-maturity (- maturity block-height))
+    (decay-factor (/ blocks-until-maturity u52560)) ;; ~1 year in blocks
+  )
+    decay-factor
+  )
+)
+```
+
+### Key Properties
+
+- PT prices decrease as maturity approaches
+- At maturity: 1 PT = 1 SY
+- Before maturity: PT trades at discount reflecting time value
+- Decay is linear based on blocks remaining until maturity
