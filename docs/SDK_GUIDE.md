@@ -175,3 +175,17 @@ console.log(`PT Balance: ${balance}`);
 ```
 
 **Returns:** Promise<number> - PT token balance
+
+#### Get YT Balance
+
+Query YT balance for specific maturity:
+
+```typescript
+const balance = await sdk.ptYt.getYtBalance(
+  'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7',
+  1735689600
+);
+console.log(`YT Balance: ${balance}`);
+```
+
+**Returns:** Promise<number> - YT token balance
