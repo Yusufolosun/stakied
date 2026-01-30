@@ -123,3 +123,19 @@ stakied pt-yt redeem 500 1735689600 --min-output 495
 - `--fee <amount>`: Custom transaction fee
 
 **Note:** PT can only be redeemed at or after maturity date.
+
+#### Claim Yield
+
+Claim accumulated yield from YT tokens:
+
+```bash
+stakied pt-yt claim <maturity> [options]
+
+# Examples
+stakied pt-yt claim 1735689600             # Claim all available yield
+stakied pt-yt claim 1735689600 --dry-run   # Preview yield amount
+```
+
+**Options:**
+- `--dry-run`: Show claimable yield without claiming
+- `--fee <amount>`: Custom transaction fee
