@@ -161,3 +161,17 @@ const txId = await broadcastTransaction(txOptions, network);
 **Parameters:**
 - `maturity` (number): Maturity timestamp
 - `senderKey` (string): Private key for signing
+
+#### Get PT Balance
+
+Query PT balance for specific maturity:
+
+```typescript
+const balance = await sdk.ptYt.getPtBalance(
+  'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7',
+  1735689600
+);
+console.log(`PT Balance: ${balance}`);
+```
+
+**Returns:** Promise<number> - PT token balance
