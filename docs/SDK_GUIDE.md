@@ -233,3 +233,26 @@ const txId = await broadcastTransaction(txOptions, network);
 - `maturity` (number): Maturity timestamp
 - `minPtOutput` (number): Minimum PT to receive
 - `senderKey` (string): Private key
+
+#### Add Liquidity
+
+Provide liquidity to AMM pool:
+
+```typescript
+const txOptions = await sdk.amm.addLiquidity({
+  maturity: 1735689600,
+  ptAmount: 1000,
+  syAmount: 2000,
+  minLpTokens: 950,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `maturity` (number): Pool maturity
+- `ptAmount` (number): PT to deposit
+- `syAmount` (number): SY to deposit
+- `minLpTokens` (number): Minimum LP tokens to receive
+- `senderKey` (string): Private key
