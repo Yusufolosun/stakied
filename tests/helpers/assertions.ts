@@ -10,4 +10,9 @@ export class CustomAssertions {
     expect(result.result).toHaveProperty("type", ClarityType.ResponseErr);
     expect(result.result.value).toBeUint(errorCode);
   }
+  
+  static assertBalanceEquals(result: any, expectedBalance: number) {
+    CustomAssertions.assertOk(result);
+    expect(result.result.value).toBeUint(expectedBalance);
+  }
 }
