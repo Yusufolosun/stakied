@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export const useContract = (_contractAddress: string) => {
+export const useContract = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
