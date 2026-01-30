@@ -1,0 +1,95 @@
+/* Responsive Design Utilities */
+
+/* Mobile First Approach */
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+  
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 960px;
+  }
+  
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1200px;
+  }
+  
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Tablet Breakpoint */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+  
+  .navigation {
+    flex-direction: column;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card {
+    margin: 0.5rem 0;
+  }
+  
+  .button {
+    width: 100%;
+  }
+  
+  .modal {
+    width: 95%;
+    margin: 1rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  .input {
+    font-size: 14px;
+  }
+}
