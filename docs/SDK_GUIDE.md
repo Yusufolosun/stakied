@@ -144,3 +144,20 @@ const txId = await broadcastTransaction(txOptions, network);
 - `senderKey` (string): Private key
 
 **Note:** Can only redeem at or after maturity.
+
+#### Claim Yield
+
+Claim accumulated yield from YT holdings:
+
+```typescript
+const txOptions = await sdk.ptYt.claimYield({
+  maturity: 1735689600,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `maturity` (number): Maturity timestamp
+- `senderKey` (string): Private key for signing
