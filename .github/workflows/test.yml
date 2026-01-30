@@ -21,11 +21,11 @@ jobs:
           cache: 'npm'
       
       - name: Install Clarinet
-        uses: supplypike/setup-bin@v3
-        with:
-          uri: 'https://github.com/hirosystems/clarinet/releases/download/v2.8.0/clarinet-linux-x64.tar.gz'
-          name: 'clarinet'
-          version: '2.8.0'
+        run: |
+          curl -L https://github.com/hirosystems/clarinet/releases/download/v2.8.0/clarinet-linux-x64.tar.gz -o clarinet.tar.gz
+          tar -xzf clarinet.tar.gz
+          chmod +x clarinet
+          sudo mv clarinet /usr/local/bin/
       
       - name: Verify Clarinet installation
         run: clarinet --version
