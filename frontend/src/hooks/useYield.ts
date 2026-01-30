@@ -32,9 +32,11 @@ export const useYield = (ytBalance?: string, maturity?: number) => {
 
   useEffect(() => {
     if (ytBalance && maturity) {
-      void calculateYield()
+      setTimeout(() => {
+        void calculateYield();
+      }, 0);
     }
-  }, [ytBalance, maturity, calculateYield])
+  }, [ytBalance, maturity, calculateYield]);
 
   return { ...yieldInfo, refresh: calculateYield }
 }
