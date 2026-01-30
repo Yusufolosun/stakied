@@ -186,6 +186,63 @@
 (define-private (get-sender)
   (ok tx-sender))
 
+(define-read-only (quote-swap-pt-for-sy (pt-amount uint) (maturity uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+    (pt-reserve (get pt-reserve pool-data))
+    (sy-reserve (get sy-reserve pool-data))
+  )
+    (asserts! (> pt-amount u0) err-invalid-amount)
+    
+    (let (
+      (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
+      (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
+    )
+      (ok {
+        sy-out: sy-out,
+        price-impact: (/ (* (- sy-reserve (- sy-reserve sy-out)) precision) sy-reserve),
+        fee: (- pt-amount pt-after-fee)
+      })
+    )
+  )
+)
+
+(define-read-only (quote-swap-sy-for-pt (sy-amount uint) (maturity uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+    (pt-reserve (get pt-reserve pool-data))
+    (sy-reserve (get sy-reserve pool-data))
+  )
+    (asserts! (> sy-amount u0) err-invalid-amount)
+    
+    (let (
+      (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
+      (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
+    )
+      (ok {
+        pt-out: pt-out,
+        price-impact: (/ (* (- pt-reserve (- pt-reserve pt-out)) precision) pt-reserve),
+        fee: (- sy-amount sy-after-fee)
+      })
+    )
+  )
+)
+
+(define-read-only (get-pool-stats (maturity uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+  )
+    (ok {
+      pt-reserve: (get pt-reserve pool-data),
+      sy-reserve: (get sy-reserve pool-data),
+      total-lp-supply: (get total-lp-supply pool-data),
+      last-update: (get last-update pool-data),
+      spot-price: (unwrap-panic (get-spot-price maturity)),
+      time-to-maturity: (if (> maturity block-height) (- maturity block-height) u0)
+    })
+  )
+)
+
 (define-public (swap-sy-for-pt (sy-amount uint) (maturity uint) (min-pt-out uint))
   (let (
     (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
