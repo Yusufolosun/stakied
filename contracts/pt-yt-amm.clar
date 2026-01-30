@@ -231,3 +231,60 @@
     )
   )
 )
+
+(define-public (add-liquidity (maturity uint) (pt-amount uint) (sy-amount uint) (min-lp-out uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+    (pt-reserve (get pt-reserve pool-data))
+    (sy-reserve (get sy-reserve pool-data))
+    (total-lp (get total-lp-supply pool-data))
+  )
+    (asserts! (> pt-amount u0) err-invalid-amount)
+    (asserts! (> sy-amount u0) err-invalid-amount)
+    
+    ;; Calculate LP tokens to mint (proportional to liquidity added)
+    ;; lp_out = min((pt_amount * total_lp / pt_reserve), (sy_amount * total_lp / sy_reserve))
+    (let (
+      (lp-from-pt (/ (* pt-amount total-lp) pt-reserve))
+      (lp-from-sy (/ (* sy-amount total-lp) sy-reserve))
+      (lp-out (if (< lp-from-pt lp-from-sy) lp-from-pt lp-from-sy))
+    )
+      (asserts! (>= lp-out min-lp-out) err-slippage-exceeded)
+      
+      ;; Calculate actual amounts to deposit (may be less than specified to maintain ratio)
+      (let (
+        (actual-pt (/ (* lp-out pt-reserve) total-lp))
+        (actual-sy (/ (* lp-out sy-reserve) total-lp))
+      )
+        ;; Transfer PT from user to pool
+        (try! (contract-call? .pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
+        
+        ;; Transfer SY from user to pool
+        (try! (contract-call? .sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
+        
+        ;; Update pool state
+        (map-set pools maturity {
+          pt-reserve: (+ pt-reserve actual-pt),
+          sy-reserve: (+ sy-reserve actual-sy),
+          total-lp-supply: (+ total-lp lp-out),
+          last-update: block-height
+        })
+        
+        ;; Mint LP tokens to user
+        (let ((current-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity}))))
+          (map-set lp-balances {user: tx-sender, maturity: maturity} (+ current-lp lp-out))
+        )
+        
+        (print {
+          action: "add-liquidity",
+          pt-added: actual-pt,
+          sy-added: actual-sy,
+          lp-minted: lp-out,
+          maturity: maturity
+        })
+        
+        (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
+      )
+    )
+  )
+)
