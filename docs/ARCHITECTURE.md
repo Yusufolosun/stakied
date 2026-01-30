@@ -8,22 +8,23 @@ Stakied is a yield tokenization protocol that allows users to split yield-bearin
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                    User Interface (Phase 2)                   │
+│                    User Interface (Phase 3)                   │
 └───────────────────────────┬──────────────────────────────────┘
                             │
 ┌───────────────────────────▼──────────────────────────────────┐
 │                  Stacks Blockchain                            │
 │                                                               │
-│  ┌─────────────┐        ┌──────────────┐                    │
-│  │  SY Token   │◄───────│ PT/YT Core   │                    │
-│  │  Contract   │        │  Contract    │                    │
-│  └──────┬──────┘        └──────┬───────┘                    │
+│  ┌─────────────┐        ┌──────────────┐   ┌──────────────┐ │
+│  │  SY Token   │◄───────│ PT/YT Core   │◄──│  PT/YT AMM   │ │
+│  │  Contract   │        │  Contract    │   │  Contract    │ │
+│  └──────┬──────┘        └──────┬───────┘   └──────────────┘ │
 │         │                      │                             │
 │         │  ┌───────────────────▼───────────┐                │
 │         └──►   SIP-010 Token Trait         │                │
 │            └───────────────────────────────┘                │
 │                                                               │
-│  Future: AMM, Oracle, Governance (Phase 2/3)                 │
+│  Phase 2: ✅ AMM with Time-Decay Pricing                     │
+│  Future: Oracle, Governance (Phase 3)                        │
 └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -132,6 +133,88 @@ Rate Update: exchange-rate ─[update]→ new exchange-rate
 
 Alternative path (anytime):
 PT + YT ─[redeem-pt-yt]→ Both burned, SY returned
+```
+
+### 3. PT/YT AMM Contract (Phase 2)
+
+**Purpose**: Automated Market Maker for trading PT against SY with time-decay pricing
+
+**Key Features**:
+- Constant product formula with time-decay modification
+- Per-maturity liquidity pools
+- LP token system for liquidity providers
+- 0.3% swap fee accruing to LPs
+- Slippage protection on all operations
+
+**Data Structures**:
+
+```clarity
+;; Pool state for each maturity
+(define-map pools 
+  uint  ;; maturity
+  {
+    pt-reserve: uint,
+    sy-reserve: uint,
+    total-lp-supply: uint,
+    last-update: uint
+  }
+)
+
+;; LP token balances
+(define-map lp-balances {user: principal, maturity: uint} uint)
+```
+
+**AMM State Machine**:
+
+```
+┌────────────────┐
+│ No pool exists │
+│ for maturity M │
+└────────┬───────┘
+         │
+         │ initialize-pool(M, PT, SY)
+         ▼
+┌─────────────────────────────┐
+│ Pool initialized            │
+│ - PT reserve = X            │
+│ - SY reserve = Y            │
+│ - LP supply = sqrt(X*Y)     │
+└──┬──────────────────────┬───┘
+   │                      │
+   │ swap-pt-for-sy       │ add-liquidity
+   │                      │
+   ▼                      ▼
+┌──────────────┐    ┌────────────────┐
+│ PT ↑, SY ↓   │    │ PT ↑, SY ↑     │
+│ Fee accrued  │    │ LP minted      │
+└──────────────┘    └────────────────┘
+   │                      │
+   │                      │ remove-liquidity
+   │                      ▼
+   │               ┌────────────────┐
+   │               │ PT ↓, SY ↓     │
+   │               │ LP burned      │
+   │               └────────────────┘
+   │
+   ▼
+Time passes → PT price converges to 1 SY at maturity
+```
+
+**Integration with Core Contracts**:
+
+```
+User         AMM Contract        PT/YT Core      SY Token
+ │                │                  │               │
+ │ swap-pt-for-sy │                  │               │
+ ├────────────────►                  │               │
+ │                │ transfer-pt      │               │
+ │                ├──────────────────►               │
+ │                │                  │               │
+ │                │ transfer SY      │               │
+ │                ├──────────────────┼───────────────►
+ │                │                  │               │
+ │ SY received    │                  │               │
+ ◄────────────────┤                  │               │
 ```
 
 ## Data Flow Diagrams
