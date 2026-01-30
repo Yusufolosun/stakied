@@ -1,2 +1,7 @@
 export const STAKIED_MAINNET_ADDRESS = 'SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193';
 export const STAKIED_TESTNET_ADDRESS = 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
+
+// Contract names
+export const SY_TOKEN_CONTRACT = 'sy-token';
+export const PT_YT_CORE_CONTRACT = 'pt-yt-core';
+export const PT_YT_AMM_CONTRACT = 'pt-yt-amm';
