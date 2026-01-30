@@ -49,3 +49,27 @@ The AMM implements a time-decay mechanism to ensure PT prices approach SY parity
 - At maturity: 1 PT = 1 SY
 - Before maturity: PT trades at discount reflecting time value
 - Decay is linear based on blocks remaining until maturity
+
+## Swap Mechanics
+
+### PT → SY Swap
+
+Users can sell PT tokens to receive SY from the pool:
+
+1. User specifies PT amount to sell and minimum SY to receive
+2. Contract calculates output using constant product formula: `Δy = (y × Δx) / (x + Δx)`
+3. Apply 0.3% fee to swap amount
+4. Transfer PT from user to pool
+5. Transfer SY from pool to user
+6. Verify slippage protection (output ≥ minimum)
+
+### SY → PT Swap
+
+Users can buy PT tokens using SY:
+
+1. User specifies SY amount to pay and minimum PT to receive
+2. Calculate PT output with time-decay adjustment
+3. Apply 0.3% fee
+4. Transfer SY from user to pool
+5. Transfer PT from pool to user
+6. Verify slippage protection
