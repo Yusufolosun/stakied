@@ -185,3 +185,49 @@
 
 (define-private (get-sender)
   (ok tx-sender))
+
+(define-public (swap-sy-for-pt (sy-amount uint) (maturity uint) (min-pt-out uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+    (pt-reserve (get pt-reserve pool-data))
+    (sy-reserve (get sy-reserve pool-data))
+  )
+    (asserts! (> sy-amount u0) err-invalid-amount)
+    (asserts! (> pt-reserve u0) err-zero-reserves)
+    (asserts! (> sy-reserve u0) err-zero-reserves)
+    
+    ;; Calculate swap output
+    ;; pt_out = (pt_reserve * sy_amount) / (sy_reserve + sy_amount)
+    ;; Apply fee
+    (let (
+      (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
+      (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
+    )
+      (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
+      (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
+      
+      ;; Transfer SY from user to pool
+      (try! (contract-call? .sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+      
+      ;; Transfer PT from pool to user
+      (try! (as-contract (contract-call? .pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
+      
+      ;; Update pool reserves
+      (map-set pools maturity {
+        pt-reserve: (- pt-reserve pt-out),
+        sy-reserve: (+ sy-reserve sy-amount),
+        total-lp-supply: (get total-lp-supply pool-data),
+        last-update: block-height
+      })
+      
+      (print {
+        action: "swap-sy-for-pt",
+        sy-in: sy-amount,
+        pt-out: pt-out,
+        maturity: maturity
+      })
+      
+      (ok pt-out)
+    )
+  )
+)
