@@ -3,7 +3,7 @@ import { useContract } from './useContract'
 
 export const useSYToken = (address?: string) => {
   const [balance, setBalance] = useState('0')
-  const { callFunction, loading } = useContract('SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193')
+  const { callFunction, loading } = useContract()
 
   const fetchBalance = useCallback(async () => {
     if (!address) return
@@ -19,9 +19,11 @@ export const useSYToken = (address?: string) => {
 
   useEffect(() => {
     if (address) {
-      void fetchBalance()
+      setTimeout(() => {
+        void fetchBalance();
+      }, 0);
     }
-  }, [address, fetchBalance])
+  }, [address, fetchBalance]);
 
   const deposit = async (amount: number) => {
     return callFunction('deposit', [amount])
