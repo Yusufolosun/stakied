@@ -14,8 +14,8 @@ export const useSwap = () => {
   const [loading, setLoading] = useState(false)
 
   const getQuote = async (
-    inputToken: 'PT' | 'SY',
-    outputToken: 'PT' | 'SY',
+    _inputToken: 'PT' | 'SY',
+    _outputToken: 'PT' | 'SY',
     amount: string
   ) => {
     setLoading(true)

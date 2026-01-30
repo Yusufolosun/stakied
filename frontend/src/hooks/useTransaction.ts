@@ -6,7 +6,7 @@ interface TransactionOptions {
   contractAddress: string
   contractName: string
   functionName: string
-  functionArgs: unknown[]
+  functionArgs: Array<string | number>
 }
 
 export const useTransaction = () => {

@@ -20,10 +20,4 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 };
 
-export const useContractContext = () => {
-  const context = useContext(ContractContext);
-  if (!context) {
-    throw new Error('useContractContext must be used within ContractProvider');
-  }
-  return context;
-};
+export { ContractContext };

@@ -9,7 +9,7 @@ interface PriceData {
 }
 
 export const usePrice = (tokenPair: string) => {
-  const [priceData, setPriceData] = useState<PriceData>({
+  const [priceData, _setPriceData] = useState<PriceData>({
     current: 1.0,
     high24h: 1.05,
     low24h: 0.95,

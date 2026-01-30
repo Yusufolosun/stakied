@@ -19,6 +19,7 @@ export const useSYToken = (address?: string) => {
 
   useEffect(() => {
     if (address) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       fetchBalance()
     }
   }, [address, fetchBalance])

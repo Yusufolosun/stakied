@@ -1,23 +1,19 @@
 import React from 'react';
 
-interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
-  disabled?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
   children, 
-  onClick, 
   variant = 'primary',
-  disabled = false 
+  className = '',
+  ...props
 }) => {
   return (
     <button
-      className={`btn btn-${variant}`}
-      onClick={onClick}
-      disabled={disabled}
+      className={`btn btn-${variant} ${className}`}
+      {...props}
     >
       {children}
     </button>

@@ -28,10 +28,11 @@ export const useYield = (ytBalance?: string, maturity?: number) => {
     } catch (err) {
       console.error('Failed to calculate yield:', err)
     }
-  }, [ytBalance, maturity])
+  }, [ytBalance])
 
   useEffect(() => {
     if (ytBalance && maturity) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       calculateYield()
     }
   }, [ytBalance, maturity, calculateYield])
