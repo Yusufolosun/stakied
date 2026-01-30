@@ -117,3 +117,31 @@ LP token holders can burn tokens to withdraw their share:
 1. Provider burns LP tokens
 2. Receives proportional share of pool reserves
 3. Minimum parameters protect against adverse price movements
+
+## Fee Structure
+
+The AMM charges a 0.3% fee on all swaps to incentivize liquidity provision.
+
+### Fee Distribution
+
+- **100% to LPs**: All trading fees accrue to liquidity providers
+- **Pro-rata Distribution**: Fees distributed proportionally to LP token ownership
+- **Auto-compounding**: Fees remain in pool, increasing LP token value
+- **No Protocol Fee**: Current implementation has 0% protocol fee (can be added in future upgrade)
+
+### Fee Calculation
+
+```clarity
+;; Example: Swapping 1000 PT
+(define-constant FEE_DENOMINATOR u10000)
+(define-constant SWAP_FEE u30) ;; 0.3% = 30/10000
+
+(define-read-only (calculate-fee (amount uint))
+  (/ (* amount SWAP_FEE) FEE_DENOMINATOR)
+)
+```
+
+For 1000 PT swap:
+- Fee = (1000 × 30) / 10000 = 3 PT
+- User receives output based on 997 PT
+- 3 PT remains in pool for LPs
