@@ -15,7 +15,3 @@ export const DepositForm: React.FC = () => {
     </form>
   );
 };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Depositing:', amount);
-  };
