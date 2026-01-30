@@ -10,6 +10,9 @@ export const Header: React.FC = () => {
           <a href="/deposit">Deposit</a>
           <a href="/mint">Mint</a>
         </nav>
+        <button className="connect-wallet-btn">
+          Connect Wallet
+        </button>
       </div>
     </header>
   );
