@@ -54,3 +54,23 @@ Redeems SY tokens for underlying assets.
   - `u3` - Insufficient SY balance
 
 **Access:** Public
+
+### Read-Only Functions
+
+#### `get-balance`
+
+Returns SY token balance for an address.
+
+```clarity
+(define-read-only (get-balance (account principal))
+  (response uint uint)
+)
+```
+
+**Parameters:**
+- `account` (principal): Address to query
+
+**Returns:**
+- `(ok uint)` - SY token balance
+
+**Access:** Public, read-only
