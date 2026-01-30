@@ -233,3 +233,21 @@ error: use of unresolved function 'as-contract'
 
 ;; Returns: (ok {sy-amount: u980, fee: u3})
 ```
+
+### Example 2: Adding Liquidity
+
+```clarity
+;; User wants to provide liquidity to PT/SY pool
+;; Pool ratio is currently 50,000 PT : 100,000 SY (1:2)
+;; User deposits 1,000 PT and 2,000 SY
+
+(contract-call? .pt-yt-amm add-liquidity
+  u1735689600  ;; Maturity
+  u1000        ;; PT amount
+  u2000        ;; SY amount
+  u950         ;; Minimum LP tokens (slippage protection)
+)
+
+;; Returns: (ok {lp-tokens: u1000})
+;; User receives LP tokens representing ~2% of pool
+```
