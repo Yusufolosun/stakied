@@ -43,3 +43,25 @@ stakied config show
 ```
 
 Configuration is stored in `~/.stakied/config.json`
+
+## Commands
+
+### SY Token Operations
+
+#### Deposit Assets to SY
+
+Deposit underlying assets to receive Standardized Yield tokens:
+
+```bash
+stakied sy deposit <amount> [options]
+
+# Examples
+stakied sy deposit 1000                    # Deposit 1000 units
+stakied sy deposit 1000 --token STX        # Specify token type
+stakied sy deposit 1000 --dry-run          # Preview without executing
+```
+
+**Options:**
+- `--token <symbol>`: Underlying asset to deposit (default: STX)
+- `--dry-run`: Simulate transaction without broadcasting
+- `--fee <amount>`: Custom transaction fee in microSTX
