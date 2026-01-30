@@ -96,3 +96,28 @@ console.log(`SY Balance: ${balance}`);
 ```
 
 **Returns:** Promise<number> - SY token balance
+
+### PT/YT Operations
+
+#### Mint PT and YT
+
+Split SY into Principal and Yield tokens:
+
+```typescript
+const txOptions = await sdk.ptYt.mint({
+  syAmount: 1000,
+  maturity: 1735689600,
+  minOutput: 990,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `syAmount` (number): SY tokens to split
+- `maturity` (number): Unix timestamp of maturity date
+- `minOutput` (number): Minimum PT/YT to receive
+- `senderKey` (string): Private key for signing
+
+**Note:** Minting produces equal amounts of PT and YT.
