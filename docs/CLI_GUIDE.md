@@ -139,3 +139,36 @@ stakied pt-yt claim 1735689600 --dry-run   # Preview yield amount
 **Options:**
 - `--dry-run`: Show claimable yield without claiming
 - `--fee <amount>`: Custom transaction fee
+
+### Query Commands
+
+#### Check Balances
+
+View your token balances:
+
+```bash
+stakied balance [token] [options]
+
+# Examples
+stakied balance                    # Show all balances
+stakied balance SY                 # Show SY balance only
+stakied balance PT 1735689600      # Show PT balance for maturity
+stakied balance YT 1735689600      # Show YT balance for maturity
+```
+
+#### View Pool Information
+
+Get current AMM pool state:
+
+```bash
+stakied pool info <maturity>
+
+# Example
+stakied pool info 1735689600
+
+# Output:
+# PT Reserve: 50,000
+# SY Reserve: 100,000
+# LP Supply: 70,711
+# Current Price: 1 PT = 2.0 SY
+```
