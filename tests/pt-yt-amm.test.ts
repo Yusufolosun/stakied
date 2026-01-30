@@ -194,4 +194,70 @@ describe("PT/YT AMM Contract Tests", () => {
       expect(swap.result).toBeErr(Cl.uint(305)); // err-slippage-exceeded
     });
   });
+
+  describe("Liquidity Management", () => {
+    it("adds liquidity and mints LP tokens proportionally", () => {
+      const maturity = 1000;
+      
+      // User1: Initialize pool
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // User2: Get tokens and add liquidity
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], user2);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(500000), Cl.uint(maturity)], user2);
+      
+      const addLiq = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
+        [Cl.uint(maturity), Cl.uint(500000), Cl.uint(500000), Cl.uint(1)], user2);
+      
+      expect(addLiq.result).toBeOk();
+      
+      // Verify user2 has LP tokens
+      const lpBalance = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
+        [Cl.principal(user2), Cl.uint(maturity)], user2);
+      
+      expect(lpBalance.result).toBeOk();
+    });
+
+    it("removes liquidity and burns LP tokens", () => {
+      const maturity = 1000;
+      
+      // Setup and add liquidity
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // Get initial LP balance
+      const lpBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
+        [Cl.principal(user1), Cl.uint(maturity)], user1);
+      
+      // Remove half the liquidity
+      const removeLiq = simnet.callPublicFn("pt-yt-amm", "remove-liquidity",
+        [Cl.uint(maturity), Cl.uint(500000), Cl.uint(1), Cl.uint(1)], user1);
+      
+      expect(removeLiq.result).toBeOk();
+    });
+
+    it("fails to remove more liquidity than owned", () => {
+      const maturity = 1000;
+      
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // Try to remove more than owned
+      const removeLiq = simnet.callPublicFn("pt-yt-amm", "remove-liquidity",
+        [Cl.uint(maturity), Cl.uint(9999999), Cl.uint(1), Cl.uint(1)], user1);
+      
+      expect(removeLiq.result).toBeErr(Cl.uint(303)); // err-insufficient-balance
+    });
+  });
 });
