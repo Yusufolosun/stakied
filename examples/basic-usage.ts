@@ -9,6 +9,11 @@ async function main() {
   });
   
   console.log('Stakied SDK initialized');
+  
+  // Query SY balance
+  const address = 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7';
+  const balance = await sdk.sy.getBalance(address);
+  console.log(`SY Balance: ${balance}`);
 }
 
 main();
