@@ -242,3 +242,20 @@ stakied pt-yt redeem 14500 1735689600
 
 # Result: Fixed 45% return regardless of yield fluctuations
 ```
+
+### Yield Speculation Strategy
+
+Speculate on rising yields using YT tokens:
+
+```bash
+# 1. Mint PT/YT from SY
+stakied pt-yt mint 5000 1735689600
+
+# 2. Sell PT immediately
+stakied amm swap-pt 5000 1735689600 2200
+
+# 3. Hold YT and claim yield periodically
+stakied pt-yt claim 1735689600
+
+# Result: Amplified exposure to yield fluctuations
+```
