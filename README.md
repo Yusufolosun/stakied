@@ -5,9 +5,10 @@
 Stakied enables splitting yield-bearing assets (liquid staked STX) into Principal Tokens (PT) and Yield Tokens (YT), unlocking fixed-rate DeFi on Bitcoin L2.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)](https://github.com/Yusufolosun/stakied)
+[![Tests](https://img.shields.io/badge/tests-43%20passing-brightgreen)](https://github.com/Yusufolosun/stakied)
 [![Clarity](https://img.shields.io/badge/Clarity-2.0-blue.svg)](https://docs.stacks.co/clarity)
 [![Stacks](https://img.shields.io/badge/Stacks-Mainnet-purple.svg)](https://www.stacks.co/)
+[![AMM](https://img.shields.io/badge/AMM-Phase%202-orange)](https://github.com/Yusufolosun/stakied)
 
 ## 🎯 Overview
 
@@ -24,6 +25,7 @@ Stakied is the **first yield tokenization protocol** for the Stacks blockchain, 
 
 1. **SY Token** ([sy-token.clar](contracts/sy-token.clar)) - Standardized yield wrapper for stSTX
 2. **PT/YT Core** ([pt-yt-core.clar](contracts/pt-yt-core.clar)) - Principal/Yield token minting & redemption
+3. **PT/YT AMM** ([pt-yt-amm.clar](contracts/pt-yt-amm.clar)) - Automated Market Maker with time-decay pricing (Phase 2)
 
 ### Core Mechanics
 
@@ -45,7 +47,14 @@ Stakied is the **first yield tokenization protocol** for the Stacks blockchain, 
        ▼       ▼
 ┌──────┐   ┌──────┐
 │  PT  │   │  YT  │  Principal + Yield Tokens
-└──────┘   └──────┘
+└──┬───┘   └──────┘
+   │
+   │ Trade on AMM ⬇️
+   ▼
+┌──────────────┐
+│  PT/YT AMM   │  Time-Decay Pricing
+│  (Phase 2)   │  Liquidity Pools, 0.3% fees
+└──────────────┘
 ```
 
 **Flow:**
@@ -113,6 +122,22 @@ clarinet check
 (contract-call? .pt-yt-core claim-yield u500000)
 ```
 
+### Trade PT on AMM (Phase 2)
+
+```clarity
+;; 1. Preview swap
+(contract-call? .pt-yt-amm quote-swap-pt-for-sy u100000 u500000)
+
+;; 2. Swap PT for SY (with 1% slippage tolerance)
+(contract-call? .pt-yt-amm swap-pt-for-sy u100000 u500000 u99000)
+
+;; 3. Provide liquidity and earn fees
+(contract-call? .pt-yt-amm add-liquidity u500000 u500000 u500000 u1)
+
+;; 4. Remove liquidity
+(contract-call? .pt-yt-amm remove-liquidity u500000 u250000 u1 u1)
+```
+
 ## 🏗️ Development
 
 ### Project Structure
@@ -122,17 +147,23 @@ stakied/
 ├── contracts/
 │   ├── sy-token.clar              # SY wrapper contract
 │   ├── pt-yt-core.clar            # PT/YT minting/redemption
+│   ├── pt-yt-amm.clar             # AMM with time-decay (Phase 2)
 │   └── traits/
 │       └── sip-010-trait.clar     # Fungible token trait
 ├── tests/
 │   ├── sy-token.test.ts           # SY tests
-│   └── pt-yt-core.test.ts         # PT/YT tests
+│   ├── pt-yt-core.test.ts         # PT/YT tests
+│   └── pt-yt-amm.test.ts          # AMM tests (Phase 2)
 ├── docs/
 │   ├── ARCHITECTURE.md            # System design
 │   ├── SY_CONTRACT.md             # SY documentation
-│   └── PT_YT_CONTRACT.md          # PT/YT documentation
+│   ├── PT_YT_CONTRACT.md          # PT/YT documentation
+│   ├── AMM_CONTRACT.md            # AMM documentation
+│   └── AMM_MATH.md                # AMM mathematics
 └── deployments/
-    └── default.simnet-plan.yaml   # Deployment config
+    ├── default.simnet-plan.yaml   # Deployment config
+    ├── amm-testnet-deploy.sh      # AMM testnet deployment
+    └── amm-mainnet-deploy.sh      # AMM mainnet deployment
 ```
 
 ### Running Tests
