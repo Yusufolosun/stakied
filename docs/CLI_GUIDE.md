@@ -197,3 +197,25 @@ stakied amm swap-sy <amount> <maturity> <min-output> [options]
 # Examples
 stakied amm swap-sy 2000 1735689600 950
 ```
+
+#### Add Liquidity
+
+Provide liquidity to AMM pool:
+
+```bash
+stakied amm add-liquidity <maturity> <pt-amount> <sy-amount> <min-lp> [options]
+
+# Example
+stakied amm add-liquidity 1735689600 1000 2000 950
+```
+
+#### Remove Liquidity
+
+Withdraw liquidity from AMM pool:
+
+```bash
+stakied amm remove-liquidity <maturity> <lp-tokens> <min-pt> <min-sy> [options]
+
+# Example
+stakied amm remove-liquidity 1735689600 500 450 900
+```
