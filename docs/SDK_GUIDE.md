@@ -212,3 +212,24 @@ const txId = await broadcastTransaction(txOptions, network);
 - `maturity` (number): Maturity timestamp
 - `minSyOutput` (number): Minimum SY to receive
 - `senderKey` (string): Private key
+
+#### Swap SY for PT
+
+Buy PT tokens via the AMM:
+
+```typescript
+const txOptions = await sdk.amm.swapSyToPt({
+  syAmount: 2000,
+  maturity: 1735689600,
+  minPtOutput: 950,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `syAmount` (number): SY tokens to spend
+- `maturity` (number): Maturity timestamp
+- `minPtOutput` (number): Minimum PT to receive
+- `senderKey` (string): Private key
