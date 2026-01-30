@@ -155,4 +155,43 @@ describe("PT/YT AMM Contract Tests", () => {
       expect(swap.result).toBeErr(Cl.uint(302)); // err-invalid-amount
     });
   });
+
+  describe("SY to PT Swaps", () => {
+    it("executes SY to PT swap correctly", () => {
+      const maturity = 1000;
+      
+      // Setup pool
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // User2: Get SY to swap
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(100000)], user2);
+      
+      // User2: Swap 100k SY for PT
+      const swap = simnet.callPublicFn("pt-yt-amm", "swap-sy-for-pt",
+        [Cl.uint(100000), Cl.uint(maturity), Cl.uint(90000)], user2);
+      
+      expect(swap.result).toBeOk();
+    });
+
+    it("fails if slippage exceeded", () => {
+      const maturity = 1000;
+      
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(100000)], user2);
+      
+      const swap = simnet.callPublicFn("pt-yt-amm", "swap-sy-for-pt",
+        [Cl.uint(100000), Cl.uint(maturity), Cl.uint(99999)], user2);
+      
+      expect(swap.result).toBeErr(Cl.uint(305)); // err-slippage-exceeded
+    });
+  });
 });
