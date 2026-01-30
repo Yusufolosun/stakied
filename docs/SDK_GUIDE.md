@@ -42,3 +42,27 @@ const testnetSdk = new StakiedSDK({
   contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
 });
 ```
+
+## Core Methods
+
+### SY Token Operations
+
+#### Deposit Assets
+
+Deposit underlying assets to receive SY tokens:
+
+```typescript
+const txOptions = await sdk.sy.deposit({
+  amount: 1000,
+  senderKey: 'your-private-key',
+});
+
+// Broadcast transaction
+const txId = await broadcastTransaction(txOptions, network);
+console.log(`Transaction ID: ${txId}`);
+```
+
+**Parameters:**
+- `amount` (number): Amount of underlying asset to deposit
+- `senderKey` (string): Private key for signing
+- `fee?` (number): Optional custom fee in microSTX
