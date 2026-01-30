@@ -5,4 +5,9 @@ export class CustomAssertions {
   static assertOk(result: any) {
     expect(result.result).toHaveProperty("type", ClarityType.ResponseOk);
   }
+  
+  static assertError(result: any, errorCode: number) {
+    expect(result.result).toHaveProperty("type", ClarityType.ResponseErr);
+    expect(result.result.value).toBeUint(errorCode);
+  }
 }
