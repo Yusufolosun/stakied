@@ -22,8 +22,7 @@ export const usePTYT = (address?: string) => {
 
   useEffect(() => {
     if (address) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      fetchBalances()
+      void fetchBalances()
     }
   }, [address, fetchBalances])
 

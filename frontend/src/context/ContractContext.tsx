@@ -1,4 +1,4 @@
-import React, { createContext, useContext, type ReactNode } from 'react';
+import React, { createContext, type ReactNode } from 'react';
 
 interface ContractContextType {
   syTokenAddress: string;

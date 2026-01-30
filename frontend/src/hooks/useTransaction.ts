@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { openContractCall } from '@stacks/connect'
 import { STACKS_MAINNET } from '@stacks/network'
+import type { ClarityValue } from '@stacks/transactions'
 
 interface TransactionOptions {
   contractAddress: string
   contractName: string
   functionName: string
-  functionArgs: Array<string | number>
+  functionArgs: ClarityValue[]
 }
 
 export const useTransaction = () => {

@@ -32,8 +32,7 @@ export const useYield = (ytBalance?: string, maturity?: number) => {
 
   useEffect(() => {
     if (ytBalance && maturity) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      calculateYield()
+      void calculateYield()
     }
   }, [ytBalance, maturity, calculateYield])
 
