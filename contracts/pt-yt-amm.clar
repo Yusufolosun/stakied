@@ -81,3 +81,58 @@
     (ok (/ (* sy-reserve precision) pt-reserve))
   )
 )
+
+(define-public (initialize-pool (maturity uint) (pt-amount uint) (sy-amount uint))
+  (begin
+    (asserts! (is-none (map-get? pools maturity)) err-pool-already-exists)
+    (asserts! (> pt-amount u0) err-invalid-amount)
+    (asserts! (> sy-amount u0) err-invalid-amount)
+    (asserts! (> maturity block-height) err-invalid-maturity)
+    
+    ;; Transfer PT from user to AMM
+    (try! (contract-call? .pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
+    
+    ;; Transfer SY from user to AMM
+    (try! (contract-call? .sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+    
+    ;; Calculate initial LP tokens (geometric mean)
+    ;; LP = sqrt(PT * SY)
+    (let ((initial-lp (sqrti (* pt-amount sy-amount))))
+      (map-set pools maturity {
+        pt-reserve: pt-amount,
+        sy-reserve: sy-amount,
+        total-lp-supply: initial-lp,
+        last-update: block-height
+      })
+      
+      (map-set lp-balances {user: tx-sender, maturity: maturity} initial-lp)
+      
+      (print {
+        action: "initialize-pool",
+        maturity: maturity,
+        pt-amount: pt-amount,
+        sy-amount: sy-amount,
+        lp-tokens: initial-lp
+      })
+      
+      (ok initial-lp)
+    )
+  )
+)
+
+;; Helper: Integer square root (Newton's method)
+(define-private (sqrti (n uint))
+  (if (<= n u1)
+    n
+    (let ((x0 (/ n u2)))
+      (sqrti-iter n x0 (/ (+ x0 (/ n x0)) u2))
+    )
+  )
+)
+
+(define-private (sqrti-iter (n uint) (x0 uint) (x1 uint))
+  (if (>= x1 x0)
+    x0
+    (sqrti-iter n x1 (/ (+ x1 (/ n x1)) u2))
+  )
+)
