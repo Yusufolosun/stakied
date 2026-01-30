@@ -171,3 +171,24 @@ error: use of unresolved function 'as-contract'
 2. Monitor Clarinet updates for analyzer fix
 3. Update to newer Clarinet version when available
 4. Re-run static analysis after tool update
+
+## Deployment Timeline
+
+### Phase 1 (Completed) ✅
+- SY Token deployed to mainnet
+- PT/YT Core contracts deployed
+- All Phase 1 tests passing (28/28)
+- Mainnet address: `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193`
+
+### Phase 2 (Current) 🚧
+- AMM contract implementation: **Complete**
+- AMM contract testing: **Complete** 
+- Static analysis: **Blocked by Clarinet bug**
+- Testnet deployment: **Pending**
+- Mainnet deployment: **Pending**
+
+### Phase 3 (Planned) 📋
+- Frontend interface for AMM trading
+- Analytics dashboard
+- Liquidity mining incentives
+- Cross-chain bridge integration
