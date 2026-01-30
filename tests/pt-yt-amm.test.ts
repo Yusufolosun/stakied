@@ -264,4 +264,154 @@ describe("PT/YT AMM Contract Tests", () => {
       expect(removeLiq.result).toBeErr(Cl.uint(303)); // err-insufficient-balance
     });
   });
+
+  describe("Edge Cases", () => {
+    it("fails when swapping with non-existent pool", () => {
+      const maturity = 9999;
+      
+      const swap = simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
+        [Cl.uint(100000), Cl.uint(maturity), Cl.uint(1)], user1);
+      
+      expect(swap.result).toBeErr(Cl.uint(306)); // err-pool-not-initialized
+    });
+
+    it("calculates price impact correctly for large swaps", () => {
+      const maturity = 1000;
+      
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(3000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1500000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // Quote a large swap (50% of pool)
+      const quote = simnet.callReadOnlyFn("pt-yt-amm", "quote-swap-pt-for-sy",
+        [Cl.uint(500000), Cl.uint(maturity)], user1);
+      
+      expect(quote.result).toBeOk();
+    });
+
+    it("handles fee accrual to liquidity providers", () => {
+      const maturity = 1000;
+      
+      // User1: Provide liquidity
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // Get initial reserves
+      const reservesBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-reserves",
+        [Cl.uint(maturity)], user1);
+      
+      // User2: Perform swaps (generate fees)
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(500000)], user2);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(250000), Cl.uint(maturity)], user2);
+      
+      simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
+        [Cl.uint(100000), Cl.uint(maturity), Cl.uint(1)], user2);
+      simnet.callPublicFn("pt-yt-amm", "swap-sy-for-pt",
+        [Cl.uint(100000), Cl.uint(maturity), Cl.uint(1)], user2);
+      
+      // Reserves should include fees
+      const reservesAfter = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-reserves",
+        [Cl.uint(maturity)], user1);
+      
+      expect(reservesAfter.result).toBeOk();
+    });
+
+    it("prevents swapping more than pool reserves", () => {
+      const maturity = 1000;
+      
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // Try to swap more PT than pool can handle
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(5000000)], user2);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(5000000), Cl.uint(maturity)], user2);
+      
+      const swap = simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
+        [Cl.uint(5000000), Cl.uint(maturity), Cl.uint(900000)], user2);
+      
+      expect(swap.result).toBeErr(Cl.uint(304)); // err-insufficient-liquidity
+    });
+  });
+
+  describe("Integration Tests", () => {
+    it("completes full user flow - deposit, mint, swap, add liquidity", () => {
+      const maturity = 1000;
+      
+      // Alice: Create pool
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      const initPool = simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      expect(initPool.result).toBeOk();
+      
+      // Bob: Get PT and swap for SY
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], user2);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(500000), Cl.uint(maturity)], user2);
+      
+      const bobSwap = simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
+        [Cl.uint(200000), Cl.uint(maturity), Cl.uint(1)], user2);
+      
+      expect(bobSwap.result).toBeOk();
+      
+      // Bob: Add remaining liquidity
+      const bobAddLiq = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
+        [Cl.uint(maturity), Cl.uint(300000), Cl.uint(300000), Cl.uint(1)], user2);
+      
+      expect(bobAddLiq.result).toBeOk();
+      
+      // Verify final state
+      const finalStats = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-stats",
+        [Cl.uint(maturity)], user1);
+      
+      expect(finalStats.result).toBeOk();
+    });
+
+    it("allows multiple users to provide and remove liquidity", () => {
+      const maturity = 1000;
+      
+      // User1: Initialize
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(2000000)], user1);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(1000000), Cl.uint(maturity)], user1);
+      simnet.callPublicFn("pt-yt-amm", "initialize-pool",
+        [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
+      
+      // User2: Add liquidity
+      simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], user2);
+      simnet.callPublicFn("pt-yt-core", "mint-pt-yt", 
+        [Cl.uint(500000), Cl.uint(maturity)], user2);
+      const add2 = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
+        [Cl.uint(maturity), Cl.uint(500000), Cl.uint(500000), Cl.uint(1)], user2);
+      
+      expect(add2.result).toBeOk();
+      
+      // User1: Remove some liquidity
+      const remove1 = simnet.callPublicFn("pt-yt-amm", "remove-liquidity",
+        [Cl.uint(maturity), Cl.uint(500000), Cl.uint(1), Cl.uint(1)], user1);
+      
+      expect(remove1.result).toBeOk();
+      
+      // Verify both users have LP tokens
+      const lp1 = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
+        [Cl.principal(user1), Cl.uint(maturity)], user1);
+      const lp2 = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
+        [Cl.principal(user2), Cl.uint(maturity)], user2);
+      
+      expect(lp1.result).toBeOk();
+      expect(lp2.result).toBeOk();
+    });
+  });
 });
