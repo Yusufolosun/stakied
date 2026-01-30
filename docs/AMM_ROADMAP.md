@@ -73,3 +73,47 @@ Users can buy PT tokens using SY:
 4. Transfer SY from user to pool
 5. Transfer PT from pool to user
 6. Verify slippage protection
+
+## Liquidity Provision
+
+### Adding Liquidity
+
+Liquidity providers deposit both PT and SY tokens to earn trading fees:
+
+```clarity
+(define-public (add-liquidity 
+  (maturity uint) 
+  (pt-amount uint) 
+  (sy-amount uint)
+  (min-lp-tokens uint))
+  ;; Validates amounts maintain pool ratio
+  ;; Mints LP tokens proportional to share
+  ;; Returns LP token amount
+)
+```
+
+**Process:**
+1. Provider deposits PT and SY in current pool ratio
+2. Contract mints LP tokens representing ownership percentage
+3. LP tokens are fungible and transferable
+4. Minimum LP tokens parameter provides slippage protection
+
+### Removing Liquidity
+
+LP token holders can burn tokens to withdraw their share:
+
+```clarity
+(define-public (remove-liquidity 
+  (maturity uint) 
+  (lp-tokens uint)
+  (min-pt uint)
+  (min-sy uint))
+  ;; Burns LP tokens
+  ;; Returns proportional PT and SY
+)
+```
+
+**Process:**
+1. Provider burns LP tokens
+2. Receives proportional share of pool reserves
+3. Minimum parameters protect against adverse price movements
