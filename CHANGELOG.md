@@ -11,3 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - SY Token contract
   - PT/YT Core contract
   - Complete test suite (28/28 passing)
+- Phase 2: AMM implementation
+  - PT/YT AMM contract with constant product formula
+  - Time-decay pricing mechanism
+  - Liquidity provision and LP tokens
+  - 0.3% swap fee structure
