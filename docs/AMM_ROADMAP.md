@@ -251,3 +251,36 @@ error: use of unresolved function 'as-contract'
 ;; Returns: (ok {lp-tokens: u1000})
 ;; User receives LP tokens representing ~2% of pool
 ```
+
+### Example 3: Removing Liquidity
+
+```clarity
+;; User burns 500 LP tokens to withdraw their share
+;; Current pool: 51,000 PT and 102,000 SY
+;; Total LP supply: 50,000 tokens
+;; User's 500 LP = 1% of pool
+
+(contract-call? .pt-yt-amm remove-liquidity
+  u1735689600  ;; Maturity
+  u500         ;; LP tokens to burn
+  u500         ;; Minimum PT to receive
+  u1000        ;; Minimum SY to receive
+)
+
+;; Returns: (ok {pt-amount: u510, sy-amount: u1020})
+;; User receives 1% of pool reserves
+```
+
+### Example 4: Checking Pool Reserves
+
+```clarity
+;; Read-only function to check current pool state
+(contract-call? .pt-yt-amm get-pool-reserves u1735689600)
+
+;; Returns: 
+;; (some {
+;;   pt-reserve: u51000,
+;;   sy-reserve: u102000,
+;;   lp-supply: u49500
+;; })
+```
