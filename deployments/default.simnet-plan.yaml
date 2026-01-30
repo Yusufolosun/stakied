@@ -66,16 +66,21 @@ plan:
         - emulated-contract-publish:
             contract-name: pt-yt-core
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/pt-yt-core.clar
+            path: "contracts\\pt-yt-core.clar"
             clarity-version: 4
         - emulated-contract-publish:
             contract-name: sip-010-trait
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/traits/sip-010-trait.clar
+            path: "contracts\\traits\\sip-010-trait.clar"
             clarity-version: 4
         - emulated-contract-publish:
             contract-name: sy-token
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/sy-token.clar
+            path: "contracts\\sy-token.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: pt-yt-amm
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\pt-yt-amm.clar"
             clarity-version: 4
       epoch: "3.3"
