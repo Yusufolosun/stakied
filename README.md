@@ -263,7 +263,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by [Pendle Finance](https://www.pendle.finance/) on Ethereum
 - Built on [Stacks](https://www.stacks.co/) blockchain
 - Powered by [Clarity](https://clarity-lang.org/) smart contracts
-- Built for [Talent Protocol Stacks Builder Campaign](https://talentprotocol.com/)
+- Supported by Stacks Ecosystem Grant
 
 ## 📞 Contact
 
