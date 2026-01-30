@@ -216,3 +216,20 @@ error: use of unresolved function 'as-contract'
 - Internal review: **Complete**
 - External audit: **Planned for mainnet deployment**
 - Bug bounty program: **To be announced**
+
+## Usage Examples
+
+### Example 1: Swapping PT for SY
+
+```clarity
+;; User wants to sell 1000 PT tokens for SY
+;; Minimum acceptable output: 950 SY (5% slippage tolerance)
+
+(contract-call? .pt-yt-amm swap-pt-to-sy
+  u1735689600  ;; Maturity timestamp
+  u1000        ;; PT amount to sell
+  u950         ;; Minimum SY to receive
+)
+
+;; Returns: (ok {sy-amount: u980, fee: u3})
+```
