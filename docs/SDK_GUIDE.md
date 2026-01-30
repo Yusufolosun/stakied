@@ -189,3 +189,26 @@ console.log(`YT Balance: ${balance}`);
 ```
 
 **Returns:** Promise<number> - YT token balance
+
+### AMM Operations
+
+#### Swap PT for SY
+
+Sell PT tokens via the AMM:
+
+```typescript
+const txOptions = await sdk.amm.swapPtToSy({
+  ptAmount: 1000,
+  maturity: 1735689600,
+  minSyOutput: 950,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `ptAmount` (number): PT tokens to sell
+- `maturity` (number): Maturity timestamp
+- `minSyOutput` (number): Minimum SY to receive
+- `senderKey` (string): Private key
