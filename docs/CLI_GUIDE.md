@@ -65,3 +65,20 @@ stakied sy deposit 1000 --dry-run          # Preview without executing
 - `--token <symbol>`: Underlying asset to deposit (default: STX)
 - `--dry-run`: Simulate transaction without broadcasting
 - `--fee <amount>`: Custom transaction fee in microSTX
+
+#### Redeem SY for Assets
+
+Burn SY tokens to receive underlying assets:
+
+```bash
+stakied sy redeem <amount> [options]
+
+# Examples
+stakied sy redeem 500                      # Redeem 500 SY
+stakied sy redeem 500 --min-output 490     # With slippage protection
+```
+
+**Options:**
+- `--min-output <amount>`: Minimum assets to receive
+- `--dry-run`: Simulate transaction
+- `--fee <amount>`: Custom transaction fee
