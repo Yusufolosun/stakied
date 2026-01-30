@@ -104,3 +104,22 @@ stakied pt-yt mint 1000 1735689600 --min-output 990
 - `--fee <amount>`: Custom transaction fee
 
 **Note:** Minting creates equal amounts of PT and YT tokens.
+
+#### Redeem PT Tokens
+
+Redeem matured PT tokens for underlying SY:
+
+```bash
+stakied pt-yt redeem <pt-amount> <maturity> [options]
+
+# Examples
+stakied pt-yt redeem 500 1735689600        # Redeem 500 PT
+stakied pt-yt redeem 500 1735689600 --min-output 495
+```
+
+**Options:**
+- `--min-output <amount>`: Minimum SY to receive
+- `--dry-run`: Simulate transaction
+- `--fee <amount>`: Custom transaction fee
+
+**Note:** PT can only be redeemed at or after maturity date.
