@@ -5,7 +5,7 @@ import { initSimnet } from "@stacks/clarinet-sdk";
 const simnet = await initSimnet();
 
 const accounts = simnet.getAccounts();
-const deployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!; // eslint-disable-line @typescript-eslint/no-unused-vars
 const user1 = accounts.get("wallet_1")!;
 const user2 = accounts.get("wallet_2")!;
 
@@ -101,7 +101,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const timeFactor = simnet.callReadOnlyFn("pt-yt-amm", "calculate-time-factor",
         [Cl.uint(maturity)], user1);
       
-      expect(timeFactor.result).toBeSome();
+      expect(timeFactor.result).toBeSome(true);
     });
   });
 
@@ -125,7 +125,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const swap = simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
         [Cl.uint(100000), Cl.uint(maturity), Cl.uint(90000)], user2);
       
-      expect(swap.result).toBeOk();
+      expect(swap.result).toBeOk(true);
     });
 
     it("fails if slippage exceeded", () => {
@@ -178,7 +178,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const swap = simnet.callPublicFn("pt-yt-amm", "swap-sy-for-pt",
         [Cl.uint(100000), Cl.uint(maturity), Cl.uint(90000)], user2);
       
-      expect(swap.result).toBeOk();
+      expect(swap.result).toBeOk(true);
     });
 
     it("fails if slippage exceeded", () => {
@@ -218,13 +218,13 @@ describe("PT/YT AMM Contract Tests", () => {
       const addLiq = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
         [Cl.uint(maturity), Cl.uint(500000), Cl.uint(500000), Cl.uint(1)], user2);
       
-      expect(addLiq.result).toBeOk();
+      expect(addLiq.result).toBeOk(true);
       
       // Verify user2 has LP tokens
       const lpBalance = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
         [Cl.principal(user2), Cl.uint(maturity)], user2);
       
-      expect(lpBalance.result).toBeOk();
+      expect(lpBalance.result).toBeOk(true);
     });
 
     it("removes liquidity and burns LP tokens", () => {
@@ -238,14 +238,14 @@ describe("PT/YT AMM Contract Tests", () => {
         [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
       
       // Get initial LP balance
-      const lpBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
+      const lpBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance", // eslint-disable-line @typescript-eslint/no-unused-vars
         [Cl.principal(user1), Cl.uint(maturity)], user1);
       
       // Remove half the liquidity
       const removeLiq = simnet.callPublicFn("pt-yt-amm", "remove-liquidity",
         [Cl.uint(maturity), Cl.uint(500000), Cl.uint(1), Cl.uint(1)], user1);
       
-      expect(removeLiq.result).toBeOk();
+      expect(removeLiq.result).toBeOk(true);
     });
 
     it("fails to remove more liquidity than owned", () => {
@@ -288,7 +288,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const quote = simnet.callReadOnlyFn("pt-yt-amm", "quote-swap-pt-for-sy",
         [Cl.uint(500000), Cl.uint(maturity)], user1);
       
-      expect(quote.result).toBeOk();
+      expect(quote.result).toBeOk(true);
     });
 
     it("handles fee accrual to liquidity providers", () => {
@@ -302,7 +302,7 @@ describe("PT/YT AMM Contract Tests", () => {
         [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
       
       // Get initial reserves
-      const reservesBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-reserves",
+      const reservesBefore = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-reserves", // eslint-disable-line @typescript-eslint/no-unused-vars
         [Cl.uint(maturity)], user1);
       
       // User2: Perform swaps (generate fees)
@@ -319,7 +319,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const reservesAfter = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-reserves",
         [Cl.uint(maturity)], user1);
       
-      expect(reservesAfter.result).toBeOk();
+      expect(reservesAfter.result).toBeOk(true);
     });
 
     it("prevents swapping more than pool reserves", () => {
@@ -354,7 +354,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const initPool = simnet.callPublicFn("pt-yt-amm", "initialize-pool",
         [Cl.uint(maturity), Cl.uint(1000000), Cl.uint(1000000)], user1);
       
-      expect(initPool.result).toBeOk();
+      expect(initPool.result).toBeOk(true);
       
       // Bob: Get PT and swap for SY
       simnet.callPublicFn("sy-token", "deposit", [Cl.uint(1000000)], user2);
@@ -364,19 +364,19 @@ describe("PT/YT AMM Contract Tests", () => {
       const bobSwap = simnet.callPublicFn("pt-yt-amm", "swap-pt-for-sy",
         [Cl.uint(200000), Cl.uint(maturity), Cl.uint(1)], user2);
       
-      expect(bobSwap.result).toBeOk();
+      expect(bobSwap.result).toBeOk(true);
       
       // Bob: Add remaining liquidity
       const bobAddLiq = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
         [Cl.uint(maturity), Cl.uint(300000), Cl.uint(300000), Cl.uint(1)], user2);
       
-      expect(bobAddLiq.result).toBeOk();
+      expect(bobAddLiq.result).toBeOk(true);
       
       // Verify final state
       const finalStats = simnet.callReadOnlyFn("pt-yt-amm", "get-pool-stats",
         [Cl.uint(maturity)], user1);
       
-      expect(finalStats.result).toBeOk();
+      expect(finalStats.result).toBeOk(true);
     });
 
     it("allows multiple users to provide and remove liquidity", () => {
@@ -396,13 +396,13 @@ describe("PT/YT AMM Contract Tests", () => {
       const add2 = simnet.callPublicFn("pt-yt-amm", "add-liquidity",
         [Cl.uint(maturity), Cl.uint(500000), Cl.uint(500000), Cl.uint(1)], user2);
       
-      expect(add2.result).toBeOk();
+      expect(add2.result).toBeOk(true);
       
       // User1: Remove some liquidity
       const remove1 = simnet.callPublicFn("pt-yt-amm", "remove-liquidity",
         [Cl.uint(maturity), Cl.uint(500000), Cl.uint(1), Cl.uint(1)], user1);
       
-      expect(remove1.result).toBeOk();
+      expect(remove1.result).toBeOk(true);
       
       // Verify both users have LP tokens
       const lp1 = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
@@ -410,8 +410,8 @@ describe("PT/YT AMM Contract Tests", () => {
       const lp2 = simnet.callReadOnlyFn("pt-yt-amm", "get-lp-balance",
         [Cl.principal(user2), Cl.uint(maturity)], user2);
       
-      expect(lp1.result).toBeOk();
-      expect(lp2.result).toBeOk();
+      expect(lp1.result).toBeOk(true);
+      expect(lp2.result).toBeOk(true);
     });
   });
 });
