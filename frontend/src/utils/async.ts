@@ -33,6 +33,7 @@ export const retryWithBackoff = async <T>(
 /**
  * Debounce function
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -48,6 +49,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 /**
  * Throttle function
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const throttle = <T extends (...args: any[]) => any>(
   func: T,
   limit: number

@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { openContractCall } from '@stacks/connect'
-import { StacksMainnet } from '@stacks/network'
-import { uintCV, principalCV } from '@stacks/transactions'
+import { STACKS_MAINNET } from '@stacks/network'
 
 interface TransactionOptions {
   contractAddress: string
   contractName: string
   functionName: string
-  functionArgs: any[]
+  functionArgs: unknown[]
 }
 
 export const useTransaction = () => {
@@ -20,8 +19,8 @@ export const useTransaction = () => {
     setError(null)
     
     try {
-      const result = await openContractCall({
-        network: new StacksMainnet(),
+      await openContractCall({
+        network: STACKS_MAINNET,
         contractAddress: options.contractAddress,
         contractName: options.contractName,
         functionName: options.functionName,

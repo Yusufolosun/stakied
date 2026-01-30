@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useContract } from './useContract'
+import { useState, useEffect, useCallback } from 'react'
 
 interface YieldInfo {
   accumulatedYield: string
@@ -13,15 +12,8 @@ export const useYield = (ytBalance?: string, maturity?: number) => {
     currentAPY: '0',
     projectedYield: '0'
   })
-  const { callFunction } = useContract()
 
-  useEffect(() => {
-    if (ytBalance && maturity) {
-      calculateYield()
-    }
-  }, [ytBalance, maturity])
-
-  const calculateYield = async () => {
+  const calculateYield = useCallback(async () => {
     try {
       // Placeholder calculation - should call actual contract
       const balance = parseFloat(ytBalance || '0')
@@ -36,7 +28,13 @@ export const useYield = (ytBalance?: string, maturity?: number) => {
     } catch (err) {
       console.error('Failed to calculate yield:', err)
     }
-  }
+  }, [ytBalance, maturity])
+
+  useEffect(() => {
+    if (ytBalance && maturity) {
+      calculateYield()
+    }
+  }, [ytBalance, maturity, calculateYield])
 
   return { ...yieldInfo, refresh: calculateYield }
 }

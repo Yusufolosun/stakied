@@ -1,31 +1,24 @@
 import React from 'react';
 
-interface InputProps {
-  type?: 'text' | 'number' | 'email' | 'password' | 'date';
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  required?: boolean;
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
-  type = 'text',
-  value,
-  onChange,
-  placeholder,
-  disabled = false,
-  required = false,
+  label,
+  error,
+  className = '',
+  ...props
 }) => {
   return (
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      disabled={disabled}
-      required={required}
-      className="input"
-    />
+    <div className="input-wrapper">
+      {label && <label className="input-label">{label}</label>}
+      <input
+        className={`input ${error ? 'input-error' : ''} ${className}`}
+        {...props}
+      />
+      {error && <span className="input-error-message">{error}</span>}
+    </div>
   );
 };

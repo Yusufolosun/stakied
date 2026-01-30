@@ -59,14 +59,14 @@ export interface ContractCallOptions {
   contractAddress: string
   contractName: string
   functionName: string
-  functionArgs: any[]
+  functionArgs: unknown[]
 }
 
 // Error type
 export interface StakiedError {
   code: string
   message: string
-  details?: any
+  details?: unknown
 }
 
 // Yield info type
