@@ -219,3 +219,26 @@ stakied amm remove-liquidity <maturity> <lp-tokens> <min-pt> <min-sy> [options]
 # Example
 stakied amm remove-liquidity 1735689600 500 450 900
 ```
+
+## Common Workflows
+
+### Fixed Yield Strategy
+
+Lock in guaranteed returns using PT tokens:
+
+```bash
+# 1. Deposit assets to get SY
+stakied sy deposit 10000
+
+# 2. Mint PT and YT
+stakied pt-yt mint 10000 1735689600
+
+# 3. Sell YT for additional PT (via AMM)
+stakied amm swap-yt 10000 1735689600 4500
+
+# 4. Hold PT until maturity
+# 5. Redeem PT for SY
+stakied pt-yt redeem 14500 1735689600
+
+# Result: Fixed 45% return regardless of yield fluctuations
+```
