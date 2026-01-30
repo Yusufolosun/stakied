@@ -64,8 +64,7 @@ Update `README.md` and `deployments/MAINNET_ADDRESSES.md` with actual contract a
 
 ### 2. Announce Launch
 - Twitter/X
-- Discord communities
-- Talent Protocol dashboard
+- Discord communities            
 - Stacks community channels
 
 ### 3. Monitor

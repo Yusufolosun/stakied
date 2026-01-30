@@ -13,6 +13,10 @@
 - **SY Token:** `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sy-token` ✅
 - **PT/YT Core:** `SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.pt-yt-core` ✅
 
+## Phase 2 Contracts (AMM)
+
+- **PT/YT AMM:** `⏳ To be deployed`
+
 ## Explorer Links
 
 - **SIP-010 Trait**: https://explorer.hiro.so/txid/SP1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK0DYG193.sip-010-trait?chain=mainnet
