@@ -4,11 +4,15 @@ Deployed on: January 29, 2026
 Network: Stacks Testnet
 Deployer: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
 
-## Contracts
+## Phase 1 Contracts
 
 - **SIP-010 Trait:** `ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0.sip-010-trait`
 - **SY Token:** `ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0.sy-token`
 - **PT/YT Core:** `ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0.pt-yt-core`
+
+## Phase 2 Contracts (AMM)
+
+- **PT/YT AMM:** `⏳ To be deployed`
 
 ## Deployment Cost
 
