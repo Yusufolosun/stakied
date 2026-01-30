@@ -288,3 +288,54 @@
     )
   )
 )
+
+(define-public (remove-liquidity (maturity uint) (lp-amount uint) (min-pt-out uint) (min-sy-out uint))
+  (let (
+    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+    (pt-reserve (get pt-reserve pool-data))
+    (sy-reserve (get sy-reserve pool-data))
+    (total-lp (get total-lp-supply pool-data))
+    (user-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity})))
+  )
+    (asserts! (> lp-amount u0) err-invalid-amount)
+    (asserts! (>= user-lp lp-amount) err-insufficient-balance)
+    
+    ;; Calculate amounts to return
+    ;; pt_out = (lp_amount * pt_reserve) / total_lp
+    ;; sy_out = (lp_amount * sy_reserve) / total_lp
+    (let (
+      (pt-out (/ (* lp-amount pt-reserve) total-lp))
+      (sy-out (/ (* lp-amount sy-reserve) total-lp))
+    )
+      (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
+      (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
+      
+      ;; Burn LP tokens
+      (map-set lp-balances {user: tx-sender, maturity: maturity} (- user-lp lp-amount))
+      
+      ;; Update pool reserves
+      (map-set pools maturity {
+        pt-reserve: (- pt-reserve pt-out),
+        sy-reserve: (- sy-reserve sy-out),
+        total-lp-supply: (- total-lp lp-amount),
+        last-update: block-height
+      })
+      
+      ;; Transfer PT to user
+      (try! (as-contract (contract-call? .pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
+      
+      ;; Transfer SY to user
+      (try! (as-contract (contract-call? .sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
+      
+      (print {
+        action: "remove-liquidity",
+        lp-burned: lp-amount,
+        pt-returned: pt-out,
+        sy-returned: sy-out,
+        maturity: maturity
+      })
+      
+      (ok {pt: pt-out, sy: sy-out})
+    )
+  )
+)
