@@ -172,3 +172,28 @@ stakied pool info 1735689600
 # LP Supply: 70,711
 # Current Price: 1 PT = 2.0 SY
 ```
+
+### AMM Trading Commands
+
+#### Swap PT for SY
+
+Sell PT tokens to the AMM pool:
+
+```bash
+stakied amm swap-pt <amount> <maturity> <min-output> [options]
+
+# Examples
+stakied amm swap-pt 1000 1735689600 950
+stakied amm swap-pt 1000 1735689600 950 --dry-run
+```
+
+#### Swap SY for PT
+
+Buy PT tokens from the AMM pool:
+
+```bash
+stakied amm swap-sy <amount> <maturity> <min-output> [options]
+
+# Examples
+stakied amm swap-sy 2000 1735689600 950
+```
