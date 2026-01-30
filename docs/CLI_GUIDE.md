@@ -82,3 +82,25 @@ stakied sy redeem 500 --min-output 490     # With slippage protection
 - `--min-output <amount>`: Minimum assets to receive
 - `--dry-run`: Simulate transaction
 - `--fee <amount>`: Custom transaction fee
+
+### PT/YT Operations
+
+#### Mint PT and YT
+
+Split SY tokens into Principal and Yield tokens:
+
+```bash
+stakied pt-yt mint <sy-amount> <maturity> [options]
+
+# Examples
+stakied pt-yt mint 1000 1735689600         # Mint from 1000 SY
+stakied pt-yt mint 1000 2025-01-01         # Use date format
+stakied pt-yt mint 1000 1735689600 --min-output 990
+```
+
+**Options:**
+- `--min-output <amount>`: Minimum PT/YT to receive
+- `--dry-run`: Simulate transaction
+- `--fee <amount>`: Custom transaction fee
+
+**Note:** Minting creates equal amounts of PT and YT tokens.
