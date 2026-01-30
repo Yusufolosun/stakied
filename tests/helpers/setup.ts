@@ -11,4 +11,8 @@ export class TestSetup {
       wallet2: simnet.getAccounts().get("wallet_2")!,
     };
   }
+  
+  static fundAccount(simnet: Simnet, address: string, amount: number) {
+    return simnet.callPublicFn("sy-token", "deposit", [Cl.uint(amount)], address);
+  }
 }
