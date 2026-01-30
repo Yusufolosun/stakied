@@ -140,3 +140,21 @@
     (ok claimable)
   )
 )
+
+(define-public (transfer-pt (amount uint) (maturity uint) (sender principal) (recipient principal))
+  (begin
+    (asserts! (is-eq tx-sender sender) err-not-authorized)
+    (asserts! (> amount u0) err-invalid-amount)
+    
+    (let ((sender-balance (default-to u0 (map-get? pt-balances {user: sender, maturity: maturity}))))
+      (asserts! (>= sender-balance amount) err-insufficient-balance)
+      
+      (map-set pt-balances {user: sender, maturity: maturity} (- sender-balance amount))
+      (map-set pt-balances {user: recipient, maturity: maturity} 
+        (+ (default-to u0 (map-get? pt-balances {user: recipient, maturity: maturity})) amount))
+      
+      (print {action: "transfer-pt", sender: sender, recipient: recipient, amount: amount, maturity: maturity})
+      (ok true)
+    )
+  )
+)
