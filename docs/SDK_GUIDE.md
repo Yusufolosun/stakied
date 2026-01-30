@@ -256,3 +256,26 @@ const txId = await broadcastTransaction(txOptions, network);
 - `syAmount` (number): SY to deposit
 - `minLpTokens` (number): Minimum LP tokens to receive
 - `senderKey` (string): Private key
+
+#### Remove Liquidity
+
+Withdraw liquidity from AMM pool:
+
+```typescript
+const txOptions = await sdk.amm.removeLiquidity({
+  maturity: 1735689600,
+  lpTokens: 500,
+  minPtOutput: 450,
+  minSyOutput: 900,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `maturity` (number): Pool maturity
+- `lpTokens` (number): LP tokens to burn
+- `minPtOutput` (number): Minimum PT to receive
+- `minSyOutput` (number): Minimum SY to receive
+- `senderKey` (string): Private key
