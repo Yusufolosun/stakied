@@ -66,3 +66,22 @@ console.log(`Transaction ID: ${txId}`);
 - `amount` (number): Amount of underlying asset to deposit
 - `senderKey` (string): Private key for signing
 - `fee?` (number): Optional custom fee in microSTX
+
+#### Redeem SY Tokens
+
+Burn SY to receive underlying assets:
+
+```typescript
+const txOptions = await sdk.sy.redeem({
+  amount: 500,
+  minOutput: 490,
+  senderKey: 'your-private-key',
+});
+
+const txId = await broadcastTransaction(txOptions, network);
+```
+
+**Parameters:**
+- `amount` (number): SY tokens to redeem
+- `minOutput` (number): Minimum assets to receive (slippage protection)
+- `senderKey` (string): Private key for signing
