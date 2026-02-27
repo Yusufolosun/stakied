@@ -43,6 +43,23 @@ test-results.log
 # === IDE & OS Artifacts ===
 .DS_Store
 Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
 *.swp
 *.swo
 *~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === Clarinet & Local State ===
+.clarinet/
+**/clarinet.json
+!**/deployments/*.yaml
+**/local-*.yaml
+
+# === System Files ===
+[Dd]esktop.ini
+ehthumbs.db
+[Tt]humbs.db
