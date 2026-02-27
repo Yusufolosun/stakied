@@ -4,16 +4,17 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u800))
-(define-constant err-not-authorized (err u801))
-(define-constant err-invalid-amount (err u802))
-(define-constant err-no-rewards (err u803))
-(define-constant err-invalid-maturity (err u804))
-(define-constant err-already-claimed (err u805))
-(define-constant err-paused (err u806))
-(define-constant err-no-supply (err u807))
-(define-constant err-epoch-not-ended (err u808))
-(define-constant err-invalid-epoch (err u809))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-no-rewards (err u800))         ;; No rewards available to claim
+(define-constant err-invalid-maturity (err u801))    ;; Provided maturity date is invalid
+(define-constant err-already-claimed (err u802))     ;; Rewards already claimed for this period
+(define-constant err-no-supply (err u803))          ;; Total supply is zero for distribution
+(define-constant err-epoch-not-ended (err u804))     ;; Epochยังไม่จบ
+(define-constant err-invalid-epoch (err u805))       ;; Provided epoch ID is invalid
 
 ;; Precision for reward index calculations
 (define-constant index-precision u1000000000000) ;; 12 decimals
