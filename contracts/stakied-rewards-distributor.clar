@@ -13,7 +13,7 @@
 (define-constant err-invalid-maturity (err u801))    ;; Provided maturity date is invalid
 (define-constant err-already-claimed (err u802))     ;; Rewards already claimed for this period
 (define-constant err-no-supply (err u803))          ;; Total supply is zero for distribution
-(define-constant err-epoch-not-ended (err u804))     ;; Epochยังไม่จบ
+(define-constant err-epoch-not-ended (err u804))     ;; Epoch has not yet ended
 (define-constant err-invalid-epoch (err u805))       ;; Provided epoch ID is invalid
 
 ;; Precision for reward index calculations
