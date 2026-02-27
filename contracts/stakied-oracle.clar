@@ -4,17 +4,18 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u600))
-(define-constant err-not-authorized (err u601))
-(define-constant err-invalid-price (err u602))
-(define-constant err-stale-price (err u603))
-(define-constant err-no-price-data (err u604))
-(define-constant err-invalid-feed (err u605))
-(define-constant err-feed-paused (err u606))
-(define-constant err-invalid-threshold (err u607))
-(define-constant err-price-deviation (err u608))
-(define-constant err-not-updater (err u609))
-(define-constant err-paused (err u610))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-price (err u600))      ;; Provided price is zero or invalid
+(define-constant err-stale-price (err u601))        ;; Price feed data is too old
+(define-constant err-no-price-data (err u602))      ;; No price recorded for this feed
+(define-constant err-invalid-feed (err u603))       ;; Price feed not found or invalid
+(define-constant err-feed-paused (err u604))        ;; Specific price feed is inactive
+(define-constant err-invalid-threshold (err u605))  ;; Staleness threshold is invalid
+(define-constant err-price-deviation (err u606))    ;; Price update exceeds max deviation
+(define-constant err-not-updater (err u607))        ;; Caller not authorized to update price
 
 ;; Price precision (6 decimals)
 (define-constant price-precision u1000000)
