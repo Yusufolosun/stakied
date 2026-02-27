@@ -11,6 +11,7 @@
 (define-constant err-invalid-amount (err u102))
 (define-constant err-insufficient-balance (err u103))
 (define-constant err-transfer-failed (err u104))
+(define-constant err-paused (err u105))
 
 ;; Token metadata
 (define-constant token-name "Stakied Standardized Yield")
@@ -51,6 +52,7 @@
 
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-eq tx-sender sender) err-not-authorized)
     (asserts! (> amount u0) err-invalid-amount)
     
@@ -68,6 +70,7 @@
 
 (define-public (deposit (amount uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> amount u0) err-invalid-amount)
     
     (let ((current-balance (default-to u0 (map-get? balances tx-sender))))
@@ -82,6 +85,7 @@
 
 (define-public (redeem (amount uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> amount u0) err-invalid-amount)
     
     (let ((current-balance (default-to u0 (map-get? balances tx-sender))))
@@ -108,8 +112,17 @@
 
 (define-public (transfer-ownership (new-owner principal))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (var-set contract-owner new-owner)
+    (ok true)
+  )
+)
+
+(define-public (set-paused (new-paused bool))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused new-paused)
     (ok true)
   )
 )
