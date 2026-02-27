@@ -2,14 +2,15 @@
 ;; Users lock SY tokens for configurable durations and accrue rewards proportionally
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u400))
 (define-constant err-not-authorized (err u401))
 (define-constant err-invalid-amount (err u402))
 (define-constant err-insufficient-balance (err u403))
 (define-constant err-lock-not-expired (err u404))
 (define-constant err-no-stake (err u405))
-(define-constant err-pool-paused (err u406))
+(define-constant err-paused (err u406))
 (define-constant err-invalid-duration (err u407))
 (define-constant err-already-staked (err u408))
 (define-constant err-zero-rewards (err u409))
@@ -24,7 +25,7 @@
 (define-data-var reward-pool uint u0)
 (define-data-var global-reward-index uint u0)
 (define-data-var last-reward-block uint u0)
-(define-data-var pool-paused bool false)
+(define-data-var is-paused bool false)
 
 ;; Data maps
 (define-map stakes
@@ -47,7 +48,7 @@
     reward-pool: (var-get reward-pool),
     global-reward-index: (var-get global-reward-index),
     last-reward-block: (var-get last-reward-block),
-    paused: (var-get pool-paused)
+    is-paused: (var-get is-paused)
   }))
 
 (define-read-only (get-pending-rewards (user principal))
@@ -67,7 +68,7 @@
 ;; Public functions
 (define-public (stake (amount uint) (lock-duration uint))
   (begin
-    (asserts! (not (var-get pool-paused)) err-pool-paused)
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> amount u0) err-invalid-amount)
     (asserts! (>= lock-duration min-lock-duration) err-invalid-duration)
     (asserts! (<= lock-duration max-lock-duration) err-invalid-duration)
@@ -89,8 +90,14 @@
 
     (var-set total-staked (+ (var-get total-staked) amount))
 
-    (print {action: "stake", user: tx-sender, amount: amount, lock-until: (+ block-height lock-duration)})
-    (ok amount)
+    (print {
+      event: "stake",
+      user: tx-sender,
+      amount: amount,
+      lock-until: (+ block-height lock-duration),
+      contract: (as-contract tx-sender)
+    })
+    (ok {user: tx-sender, amount: amount, lock-until: (+ block-height lock-duration)})
   )
 )
 
@@ -100,6 +107,7 @@
     (staked-amount (get amount stake-data))
     (lock-until (get lock-until stake-data))
   )
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (>= block-height lock-until) err-lock-not-expired)
 
     ;; Claim any pending rewards first
@@ -116,8 +124,14 @@
       (map-delete stakes tx-sender)
       (var-set total-staked (- (var-get total-staked) staked-amount))
 
-      (print {action: "unstake", user: tx-sender, amount: staked-amount, rewards: pending})
-      (ok {amount: staked-amount, rewards: pending})
+      (print {
+        event: "unstake",
+        user: tx-sender,
+        amount: staked-amount,
+        rewards: pending,
+        contract: (as-contract tx-sender)
+      })
+      (ok {user: tx-sender, amount: staked-amount, rewards: pending})
     )
   )
 )
@@ -127,6 +141,7 @@
     (stake-data (unwrap! (map-get? stakes tx-sender) err-no-stake))
     (pending (unwrap-panic (get-pending-rewards tx-sender)))
   )
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> pending u0) err-zero-rewards)
 
     ;; Update reward debt
@@ -138,8 +153,13 @@
                             (- (var-get reward-pool) pending)
                             u0))
 
-    (print {action: "claim-rewards", user: tx-sender, amount: pending})
-    (ok pending)
+    (print {
+      event: "claim-rewards",
+      user: tx-sender,
+      amount: pending,
+      contract: (as-contract tx-sender)
+    })
+    (ok {user: tx-sender, amount: pending})
   )
 )
 
@@ -147,17 +167,41 @@
   (begin
     (asserts! (> amount u0) err-invalid-amount)
     (var-set reward-pool (+ (var-get reward-pool) amount))
-    (print {action: "fund-reward-pool", funder: tx-sender, amount: amount})
-    (ok amount)
+    (print {
+      event: "fund-reward-pool",
+      funder: tx-sender,
+      amount: amount,
+      contract: (as-contract tx-sender)
+    })
+    (ok {funder: tx-sender, amount: amount})
   )
 )
 
-(define-public (set-pool-paused (paused bool))
+(define-public (set-paused (paused bool))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-    (var-set pool-paused paused)
-    (print {action: "set-pool-paused", paused: paused})
-    (ok paused)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused paused)
+    (print {
+      event: "set-paused",
+      paused: paused,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {paused: paused})
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (print {
+      event: "transfer-ownership",
+      new-owner: new-owner,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-owner: new-owner})
   )
 )
 
