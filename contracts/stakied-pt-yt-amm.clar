@@ -86,40 +86,44 @@
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
     (let ((user tx-sender))
-      ;; Transfer PT from user to AMM
-      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity user tx-sender)))
-      
-      ;; Transfer SY from user to AMM
-      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+      (begin
+        ;; Transfer PT from user to AMM
+        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity user tx-sender)))
+        
+        ;; Transfer SY from user to AMM
+        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+      )
     )
     
     ;; Calculate initial LP tokens (geometric mean)
     ;; LP = sqrt(PT * SY)
-      (let ((initial-lp (sqrti (* pt-amount sy-amount))))
-      (map-set pools maturity {
-        pt-reserve: pt-amount,
-        sy-reserve: sy-amount,
-        total-lp-supply: initial-lp,
-        last-update: block-height
-      })
-      
-      (map-set lp-balances {user: tx-sender, maturity: maturity} initial-lp)
-      
-      (print {
-        action: "initialize-pool",
-        maturity: maturity,
-        pt-amount: pt-amount,
-        sy-amount: sy-amount,
-        lp-tokens: initial-lp
-      })
-      
-      (ok initial-lp)
+    (let ((initial-lp (sqrt-i (* pt-amount sy-amount))))
+      (begin
+        (map-set pools maturity {
+          pt-reserve: pt-amount,
+          sy-reserve: sy-amount,
+          total-lp-supply: initial-lp,
+          last-update: block-height
+        })
+        
+        (map-set lp-balances {user: tx-sender, maturity: maturity} initial-lp)
+        
+        (print {
+          action: "initialize-pool",
+          maturity: maturity,
+          pt-amount: pt-amount,
+          sy-amount: sy-amount,
+          lp-tokens: initial-lp
+        })
+        
+        (ok initial-lp)
+      )
     )
   )
 )
 
 ;; Helper: Integer square root (Newton's method) - Unrolled for Clarity
-(define-private (sqrti (n uint))
+(define-private (sqrt-i (n uint))
   (if (<= n u1)
     n
     (let (
@@ -152,33 +156,35 @@
       (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
       (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
     )
-      (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
-      (asserts! (< sy-out sy-reserve) err-insufficient-liquidity)
-      
-      ;; Transfer PT from user to pool
-      (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
-      
-      ;; Transfer SY from pool to user
-      (let ((sender tx-sender))
-        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+      (begin
+        (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
+        (asserts! (< sy-out sy-reserve) err-insufficient-liquidity)
+        
+        ;; Transfer PT from user to pool
+        (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
+        
+        ;; Transfer SY from pool to user
+        (let ((sender tx-sender))
+          (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+        )
+        
+        ;; Update pool reserves
+        (map-set pools maturity {
+          pt-reserve: (+ pt-reserve pt-amount),
+          sy-reserve: (- sy-reserve sy-out),
+          total-lp-supply: (get total-lp-supply pool-data),
+          last-update: block-height
+        })
+        
+        (print {
+          action: "swap-pt-for-sy",
+          pt-in: pt-amount,
+          sy-out: sy-out,
+          maturity: maturity
+        })
+        
+        (ok sy-out)
       )
-      
-      ;; Update pool reserves
-      (map-set pools maturity {
-        pt-reserve: (+ pt-reserve pt-amount),
-        sy-reserve: (- sy-reserve sy-out),
-        total-lp-supply: (get total-lp-supply pool-data),
-        last-update: block-height
-      })
-      
-      (print {
-        action: "swap-pt-for-sy",
-        pt-in: pt-amount,
-        sy-out: sy-out,
-        maturity: maturity
-      })
-      
-      (ok sy-out)
     )
   )
 )
@@ -257,35 +263,37 @@
       (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
       (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
     )
-      (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
-      (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
-      
-      ;; Transfer SY from user to pool
-      (let ((user tx-sender))
-        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+      (begin
+        (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
+        (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
+        
+        ;; Transfer SY from user to pool
+        (let ((user tx-sender))
+          (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+        )
+        
+        ;; Transfer PT from pool to user
+        (let ((sender tx-sender))
+          (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+        )
+        
+        ;; Update pool reserves
+        (map-set pools maturity {
+          pt-reserve: (- pt-reserve pt-out),
+          sy-reserve: (+ sy-reserve sy-amount),
+          total-lp-supply: (get total-lp-supply pool-data),
+          last-update: block-height
+        })
+        
+        (print {
+          action: "swap-sy-for-pt",
+          sy-in: sy-amount,
+          pt-out: pt-out,
+          maturity: maturity
+        })
+        
+        (ok pt-out)
       )
-      
-      ;; Transfer PT from pool to user
-      (let ((sender tx-sender))
-        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
-      )
-      
-      ;; Update pool reserves
-      (map-set pools maturity {
-        pt-reserve: (- pt-reserve pt-out),
-        sy-reserve: (+ sy-reserve sy-amount),
-        total-lp-supply: (get total-lp-supply pool-data),
-        last-update: block-height
-      })
-      
-      (print {
-        action: "swap-sy-for-pt",
-        sy-in: sy-amount,
-        pt-out: pt-out,
-        maturity: maturity
-      })
-      
-      (ok pt-out)
     )
   )
 )
@@ -313,36 +321,38 @@
         (actual-pt (/ (* lp-out pt-reserve) total-lp))
         (actual-sy (/ (* lp-out sy-reserve) total-lp))
       )
-        (let ((user tx-sender))
-          ;; Transfer PT from user to pool
-          (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity user tx-sender)))
+        (begin
+          (let ((user tx-sender))
+            ;; Transfer PT from user to pool
+            (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity user tx-sender)))
+            
+            ;; Transfer SY from user to pool
+            (try! (as-contract (contract-call? .stakied-sy-token transfer actual-sy user tx-sender none)))
+          )
           
-          ;; Transfer SY from user to pool
-          (try! (as-contract (contract-call? .stakied-sy-token transfer actual-sy user tx-sender none)))
+          ;; Update pool state
+          (map-set pools maturity {
+            pt-reserve: (+ pt-reserve actual-pt),
+            sy-reserve: (+ sy-reserve actual-sy),
+            total-lp-supply: (+ total-lp lp-out),
+            last-update: block-height
+          })
+          
+          ;; Mint LP tokens to user
+          (let ((current-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity}))))
+            (map-set lp-balances {user: tx-sender, maturity: maturity} (+ current-lp lp-out))
+          )
+          
+          (print {
+            action: "add-liquidity",
+            pt-added: actual-pt,
+            sy-added: actual-sy,
+            lp-minted: lp-out,
+            maturity: maturity
+          })
+          
+          (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
         )
-        
-        ;; Update pool state
-        (map-set pools maturity {
-          pt-reserve: (+ pt-reserve actual-pt),
-          sy-reserve: (+ sy-reserve actual-sy),
-          total-lp-supply: (+ total-lp lp-out),
-          last-update: block-height
-        })
-        
-        ;; Mint LP tokens to user
-        (let ((current-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity}))))
-          (map-set lp-balances {user: tx-sender, maturity: maturity} (+ current-lp lp-out))
-        )
-        
-        (print {
-          action: "add-liquidity",
-          pt-added: actual-pt,
-          sy-added: actual-sy,
-          lp-minted: lp-out,
-          maturity: maturity
-        })
-        
-        (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
       )
     )
   )
@@ -364,37 +374,41 @@
       (pt-out (/ (* lp-amount pt-reserve) total-lp))
       (sy-out (/ (* lp-amount sy-reserve) total-lp))
     )
-      (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
-      (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
-      
-      ;; Burn LP tokens
-      (map-set lp-balances {user: tx-sender, maturity: maturity} (- user-lp lp-amount))
-      
-      ;; Update pool reserves
-      (map-set pools maturity {
-        pt-reserve: (- pt-reserve pt-out),
-        sy-reserve: (- sy-reserve sy-out),
-        total-lp-supply: (- total-lp lp-amount),
-        last-update: block-height
-      })
-      
-      ;; Transfer PT to user
-      (let ((sender tx-sender))
-        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+      (begin
+        (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
+        (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
         
-        ;; Transfer SY to user
-        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+        ;; Burn LP tokens
+        (map-set lp-balances {user: tx-sender, maturity: maturity} (- user-lp lp-amount))
+        
+        ;; Update pool reserves
+        (map-set pools maturity {
+          pt-reserve: (- pt-reserve pt-out),
+          sy-reserve: (- sy-reserve sy-out),
+          total-lp-supply: (- total-lp lp-amount),
+          last-update: block-height
+        })
+        
+        ;; Transfer PT to user
+        (let ((sender tx-sender))
+          (begin
+            (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+            
+            ;; Transfer SY to user
+            (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+          )
+        )
+        
+        (print {
+          action: "remove-liquidity",
+          lp-burned: lp-amount,
+          pt-returned: pt-out,
+          sy-returned: sy-out,
+          maturity: maturity
+        })
+        
+        (ok {pt: pt-out, sy: sy-out})
       )
-      
-      (print {
-        action: "remove-liquidity",
-        lp-burned: lp-amount,
-        pt-returned: pt-out,
-        sy-returned: sy-out,
-        maturity: maturity
-      })
-      
-      (ok {pt: pt-out, sy: sy-out})
     )
   )
 )
