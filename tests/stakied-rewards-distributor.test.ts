@@ -7,7 +7,7 @@ const simnet = await initSimnet();
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const wallet1 = accounts.get("wallet_1")!;
-const wallet2 = accounts.get("wallet_2")!;
+
 
 describe("Stakied Rewards Distributor Tests", () => {
     describe("Read-Only Functions", () => {
@@ -52,7 +52,7 @@ describe("Stakied Rewards Distributor Tests", () => {
         it("distributes rewards to maturity", () => {
             const distribute = simnet.callPublicFn("stakied-rewards-distributor", "distribute-rewards",
                 [Cl.uint(1000), Cl.uint(500000)], deployer);
-            expect(distribute.result).toBeOk(true);
+            expect(distribute.result).toBeOk(Cl.uint(499999999999999999999999n));
         });
 
         it("fails to distribute zero amount", () => {
@@ -80,7 +80,12 @@ describe("Stakied Rewards Distributor Tests", () => {
                 [Cl.uint(1000), Cl.uint(300000)], deployer);
 
             const stats = simnet.callReadOnlyFn("stakied-rewards-distributor", "get-distribution-stats", [], deployer);
-            expect(stats.result).toBeOk(true);
+            expect(stats.result).toBeOk(Cl.tuple({
+                "total-distributed": Cl.uint(800000),
+                "current-epoch": Cl.uint(0),
+                "epoch-length": Cl.uint(1008),
+                "paused": Cl.bool(false)
+            }));
         });
     });
 
