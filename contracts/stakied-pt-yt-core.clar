@@ -38,7 +38,7 @@
 (define-public (mint-pt-yt (sy-amount uint) (maturity uint))
   (begin
     (asserts! (> sy-amount u0) err-invalid-amount)
-    (asserts! (> maturity stacks-block-height) err-invalid-maturity)
+    (asserts! (> maturity block-height) err-invalid-maturity)
     
     ;; Mint PT tokens
     (let ((current-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
@@ -60,7 +60,7 @@
 (define-public (redeem-matured-pt (pt-amount uint) (maturity uint))
   (begin
     (asserts! (> pt-amount u0) err-invalid-amount)
-    (asserts! (>= stacks-block-height maturity) err-maturity-not-reached)
+    (asserts! (>= block-height maturity) err-maturity-not-reached)
     
     (let ((user-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
       (asserts! (>= user-pt-balance pt-amount) err-insufficient-balance)

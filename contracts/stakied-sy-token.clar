@@ -100,7 +100,7 @@
     (asserts! (is-eq tx-sender contract-owner) err-owner-only)
     (asserts! (> new-rate u0) err-invalid-amount)
     (var-set exchange-rate new-rate)
-    (var-set last-yield-update stacks-block-height)
+    (var-set last-yield-update block-height)
     (ok true)
   )
 )

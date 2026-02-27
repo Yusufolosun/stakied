@@ -103,8 +103,8 @@
   (let (
     (total-boosted (var-get total-boosted-supply))
     (last-block (var-get last-update-block))
-    (blocks-elapsed (if (> stacks-block-height last-block)
-                       (- stacks-block-height last-block)
+    (blocks-elapsed (if (> block-height last-block)
+                       (- block-height last-block)
                        u0))
     (new-rewards (* blocks-elapsed (var-get emission-rate)))
   )
@@ -121,7 +121,7 @@
     (new-rpt (calculate-reward-per-token))
   )
     (var-set global-reward-per-token new-rpt)
-    (var-set last-update-block stacks-block-height)
+    (var-set last-update-block block-height)
 
     (match (map-get? lp-stakes user)
       stake-data
@@ -173,7 +173,7 @@
           boosted-amount: boosted-amount,
           reward-per-token-paid: (var-get global-reward-per-token),
           pending-rewards: u0,
-          staked-at: stacks-block-height
+          staked-at: block-height
         })
       )
 
@@ -259,7 +259,7 @@
 
     ;; Update global state before changing rate
     (var-set global-reward-per-token (calculate-reward-per-token))
-    (var-set last-update-block stacks-block-height)
+    (var-set last-update-block block-height)
     (var-set emission-rate new-rate)
 
     (print {action: "set-emission-rate", rate: new-rate})

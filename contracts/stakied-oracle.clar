@@ -51,7 +51,7 @@
     (feed-data (unwrap! (map-get? price-feeds feed-id) err-no-price-data))
     (threshold (var-get staleness-threshold))
   )
-    (asserts! (<= (- stacks-block-height (get updated-at feed-data)) threshold) err-stale-price)
+    (asserts! (<= (- block-height (get updated-at feed-data)) threshold) err-stale-price)
     (ok {
       price: (get price feed-data),
       updated-at: (get updated-at feed-data),
@@ -68,7 +68,7 @@
       price: (get price feed-data),
       updated-at: (get updated-at feed-data),
       round: (get round feed-data),
-      is-stale: (> (- stacks-block-height (get updated-at feed-data)) (var-get staleness-threshold))
+      is-stale: (> (- block-height (get updated-at feed-data)) (var-get staleness-threshold))
     })
   )
 )
@@ -86,7 +86,7 @@
   (let (
     (feed-data (unwrap! (map-get? price-feeds feed-id) err-no-price-data))
   )
-    (ok (> (- stacks-block-height (get updated-at feed-data)) (var-get staleness-threshold)))
+    (ok (> (- block-height (get updated-at feed-data)) (var-get staleness-threshold)))
   )
 )
 
@@ -126,7 +126,7 @@
     (let ((new-round (+ (var-get current-round) u1)))
       (map-set price-feeds feed-id {
         price: new-price,
-        updated-at: stacks-block-height,
+        updated-at: block-height,
         round: new-round,
         updater: tx-sender
       })

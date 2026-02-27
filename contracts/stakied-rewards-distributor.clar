@@ -114,7 +114,7 @@
       (map-set reward-indices maturity {
         global-index: new-index,
         total-rewards: (+ (get total-rewards current-state) amount),
-        last-update: stacks-block-height
+        last-update: block-height
       })
 
       (var-set total-distributed (+ (var-get total-distributed) amount))
@@ -158,8 +158,8 @@
     (let ((new-epoch (+ (var-get current-epoch) u1)))
       (map-set epoch-rewards new-epoch {
         amount: amount,
-        start-block: stacks-block-height,
-        end-block: (+ stacks-block-height (var-get epoch-length)),
+        start-block: block-height,
+        end-block: (+ block-height (var-get epoch-length)),
         distributed: false
       })
 

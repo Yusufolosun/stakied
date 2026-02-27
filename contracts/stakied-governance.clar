@@ -66,8 +66,8 @@
     (prop (unwrap! (map-get? proposals proposal-id) err-proposal-not-found))
   )
     (ok (and
-      (>= stacks-block-height (get start-block prop))
-      (<= stacks-block-height (get end-block prop))
+      (>= block-height (get start-block prop))
+      (<= block-height (get end-block prop))
       (not (get cancelled prop))
     ))
   )
@@ -89,7 +89,7 @@
     (ok (and
       (> (get votes-for prop) (get votes-against prop))
       (>= (+ (get votes-for prop) (get votes-against prop)) quorum-threshold)
-      (> stacks-block-height (get end-block prop))
+      (> block-height (get end-block prop))
       (not (get cancelled prop))
     ))
   )
@@ -117,8 +117,8 @@
       proposer: tx-sender,
       title: title,
       description: description,
-      start-block: stacks-block-height,
-      end-block: (+ stacks-block-height voting-period),
+      start-block: block-height,
+      end-block: (+ block-height voting-period),
       votes-for: u0,
       votes-against: u0,
       executed: false,
@@ -138,8 +138,8 @@
     (power (default-to u0 (map-get? voting-power tx-sender)))
   )
     ;; Validate voting conditions
-    (asserts! (>= stacks-block-height (get start-block prop)) err-voting-closed)
-    (asserts! (<= stacks-block-height (get end-block prop)) err-voting-closed)
+    (asserts! (>= block-height (get start-block prop)) err-voting-closed)
+    (asserts! (<= block-height (get end-block prop)) err-voting-closed)
     (asserts! (not (get cancelled prop)) err-voting-closed)
     (asserts! (is-none (map-get? votes {proposal-id: proposal-id, voter: tx-sender})) err-already-voted)
     (asserts! (> amount u0) err-invalid-amount)
@@ -170,7 +170,7 @@
   (let (
     (prop (unwrap! (map-get? proposals proposal-id) err-proposal-not-found))
   )
-    (asserts! (> stacks-block-height (get end-block prop)) err-voting-closed)
+    (asserts! (> block-height (get end-block prop)) err-voting-closed)
     (asserts! (not (get executed prop)) err-already-executed)
     (asserts! (not (get cancelled prop)) err-invalid-proposal)
     (asserts! (> (get votes-for prop) (get votes-against prop)) err-proposal-not-passed)

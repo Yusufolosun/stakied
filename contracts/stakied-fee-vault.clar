@@ -83,21 +83,21 @@
   )
     (asserts! (not (var-get vault-paused)) err-vault-paused)
     (asserts! (> pending u0) err-no-fees)
-    (asserts! (>= stacks-block-height (+ last-dist cooldown)) err-cooldown-active)
+    (asserts! (>= block-height (+ last-dist cooldown)) err-cooldown-active)
 
     (let (
       (treasury-share (/ (* pending (var-get treasury-split-bps)) bps-denominator))
       (staker-share (- pending treasury-share))
     )
       (var-set total-fees-distributed (+ (var-get total-fees-distributed) pending))
-      (var-set last-distribution-block stacks-block-height)
+      (var-set last-distribution-block block-height)
 
       (print {
         action: "distribute-fees",
         total: pending,
         treasury-share: treasury-share,
         staker-share: staker-share,
-        block: stacks-block-height
+        block: block-height
       })
       (ok {treasury: treasury-share, stakers: staker-share})
     )
