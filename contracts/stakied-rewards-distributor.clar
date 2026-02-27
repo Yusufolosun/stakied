@@ -23,7 +23,7 @@
 (define-data-var epoch-length uint u1008) ;; ~7 days in blocks
 (define-data-var distributor-paused bool false)
 
-;; Data maps — reward indices per maturity
+;; Data maps - reward indices per maturity
 (define-map reward-indices
   uint ;; maturity
   {
