@@ -5,7 +5,6 @@ import { initSimnet } from "@stacks/clarinet-sdk";
 const simnet = await initSimnet();
 
 const accounts = simnet.getAccounts();
-const deployer = accounts.get("deployer")!;
 const user1 = accounts.get("wallet_1")!;
 const user2 = accounts.get("wallet_2")!;
 
@@ -125,7 +124,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const swap = simnet.callPublicFn("stakied-pt-yt-amm", "swap-pt-for-sy",
         [Cl.uint(100000), Cl.uint(maturity), Cl.uint(1)], user2);
 
-      expect(swap.result).toBeOk(true);
+      expect(swap.result).toBeOk(Cl.bool(true));
     });
 
     it("fails if slippage exceeded", () => {
@@ -174,7 +173,7 @@ describe("PT/YT AMM Contract Tests", () => {
       const swap = simnet.callPublicFn("stakied-pt-yt-amm", "swap-sy-for-pt",
         [Cl.uint(100000), Cl.uint(maturity), Cl.uint(1)], user2);
 
-      expect(swap.result).toBeOk(true);
+      expect(swap.result).toBeOk(Cl.bool(true));
     });
 
     it("fails if slippage exceeded", () => {
