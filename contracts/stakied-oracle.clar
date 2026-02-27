@@ -2,7 +2,8 @@
 ;; Owner publishes price updates, consumers query with staleness checks
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u600))
 (define-constant err-not-authorized (err u601))
 (define-constant err-invalid-price (err u602))
@@ -13,6 +14,7 @@
 (define-constant err-invalid-threshold (err u607))
 (define-constant err-price-deviation (err u608))
 (define-constant err-not-updater (err u609))
+(define-constant err-paused (err u610))
 
 ;; Price precision (6 decimals)
 (define-constant price-precision u1000000)
@@ -21,6 +23,7 @@
 (define-constant bps-denominator u10000)
 
 ;; Data variables
+(define-data-var is-paused bool false)
 (define-data-var staleness-threshold uint u720) ;; ~5 days in blocks
 (define-data-var current-round uint u0)
 
@@ -93,7 +96,8 @@
 ;; Public functions
 (define-public (update-price (feed-id (string-ascii 32)) (new-price uint))
   (begin
-    (asserts! (or (is-eq tx-sender contract-owner)
+    (asserts! (not (var-get is-paused)) err-paused)
+    (asserts! (or (is-eq tx-sender (var-get contract-owner))
                   (default-to false (map-get? authorized-updaters tx-sender)))
               err-not-updater)
     (asserts! (> new-price u0) err-invalid-price)
@@ -132,41 +136,95 @@
       })
       (var-set current-round new-round)
 
-      (print {action: "update-price", feed-id: feed-id, price: new-price, round: new-round})
-      (ok new-round)
+      (print {
+        event: "update-price",
+        feed-id: feed-id,
+        price: new-price,
+        round: new-round,
+        updater: tx-sender,
+        contract: (as-contract tx-sender)
+      })
+      (ok {feed-id: feed-id, price: new-price, round: new-round})
     )
   )
 )
 
 (define-public (set-staleness-threshold (new-threshold uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> new-threshold u0) err-invalid-threshold)
     (var-set staleness-threshold new-threshold)
-    (print {action: "set-staleness-threshold", threshold: new-threshold})
-    (ok new-threshold)
+    (print {
+      event: "set-staleness-threshold",
+      threshold: new-threshold,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-threshold: new-threshold})
   )
 )
 
 (define-public (authorize-updater (updater principal) (authorized bool))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (map-set authorized-updaters updater authorized)
-    (print {action: "authorize-updater", updater: updater, authorized: authorized})
-    (ok true)
+    (print {
+      event: "authorize-updater",
+      updater: updater,
+      authorized: authorized,
+      updater-source: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {updater: updater, authorized: authorized})
   )
 )
 
 (define-public (configure-feed (feed-id (string-ascii 32)) (active bool) (min-price uint) (max-price uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (< min-price max-price) err-invalid-price)
     (map-set feed-configs feed-id {
       active: active,
       min-price: min-price,
       max-price: max-price
     })
-    (print {action: "configure-feed", feed-id: feed-id, active: active, min-price: min-price, max-price: max-price})
-    (ok true)
+    (print {
+      event: "configure-feed",
+      feed-id: feed-id,
+      active: active,
+      min-price: min-price,
+      max-price: max-price,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {feed-id: feed-id, active: active})
+  )
+)
+
+(define-public (set-paused (paused bool))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused paused)
+    (print {
+      event: "set-paused",
+      paused: paused,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {paused: paused})
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (print {
+      event: "transfer-ownership",
+      new-owner: new-owner,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-owner: new-owner})
   )
 )
