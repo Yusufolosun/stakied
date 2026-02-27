@@ -20,6 +20,7 @@
 (define-constant token-decimals u6)
 
 ;; Data variables
+(define-data-var is-paused bool false)
 (define-data-var token-uri (optional (string-utf8 256)) none)
 (define-data-var total-supply uint u0)
 (define-data-var exchange-rate uint u1000000) ;; 1:1 initially (6 decimals)
@@ -71,7 +72,7 @@
         memo: memo,
         contract: (as-contract tx-sender)
       })
-      (ok {sender: sender, recipient: recipient, amount: amount})
+      (ok true)
     )
   )
 )
