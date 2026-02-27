@@ -7,44 +7,43 @@ cache_dir = "./.cache"
 
 [contracts.sip-010-trait]
 path = "contracts/traits/sip-010-trait.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-sy-token]
 path = "contracts/stakied-sy-token.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-pt-yt-core]
 path = "contracts/stakied-pt-yt-core.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-pt-yt-amm]
 path = "contracts/stakied-pt-yt-amm.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-staking-pool]
 path = "contracts/stakied-staking-pool.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-fee-vault]
 path = "contracts/stakied-fee-vault.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-oracle]
 path = "contracts/stakied-oracle.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-governance]
 path = "contracts/stakied-governance.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-rewards-distributor]
 path = "contracts/stakied-rewards-distributor.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [contracts.stakied-liquidity-gauge]
 path = "contracts/stakied-liquidity-gauge.clar"
-epoch = "latest"
+epoch = "2.4"
 
 [repl.analysis]
-passes = ["check_checker"]
-check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
+passes = []
