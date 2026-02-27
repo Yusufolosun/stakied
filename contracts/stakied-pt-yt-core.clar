@@ -1,7 +1,8 @@
 ;; Stakied PT/YT Core - Principal & Yield Token Minting/Redemption
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u200))
 (define-constant err-not-authorized (err u201))
 (define-constant err-invalid-amount (err u202))
