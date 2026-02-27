@@ -4,16 +4,17 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u900))
-(define-constant err-not-authorized (err u901))
-(define-constant err-invalid-amount (err u902))
-(define-constant err-insufficient-balance (err u903))
-(define-constant err-no-stake (err u904))
-(define-constant err-paused (err u905))
-(define-constant err-invalid-rate (err u906))
-(define-constant err-no-rewards (err u907))
-(define-constant err-invalid-maturity (err u908))
-(define-constant err-invalid-boost (err u909))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-no-stake (err u900))           ;; User has no active LP stake
+(define-constant err-invalid-rate (err u901))        ;; Emission rate is invalid
+(define-constant err-no-rewards (err u902))         ;; No gauge rewards available to claim
+(define-constant err-invalid-maturity (err u903))    ;; Provided maturity date is invalid
+(define-constant err-invalid-boost (err u904))       ;; Boost calculation parameters invalid
 
 ;; Boost configuration
 (define-constant max-boost u2500000)     ;; 2.5x max boost (6 decimals)
