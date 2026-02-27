@@ -74,9 +74,7 @@
     (asserts! (is-none (map-get? stakes tx-sender)) err-already-staked)
 
     ;; Transfer SY tokens from user to this contract
-    (let ((user tx-sender))
-      (try! (as-contract (contract-call? .stakied-sy-token transfer amount user tx-sender none)))
-    )
+    (try! (contract-call? .stakied-sy-token transfer amount tx-sender (as-contract tx-sender) none))
 
     ;; Update global reward index before state changes
     (update-reward-index)
