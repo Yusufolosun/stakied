@@ -7,7 +7,6 @@ const simnet = await initSimnet();
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const wallet1 = accounts.get("wallet_1")!;
-const wallet2 = accounts.get("wallet_2")!;
 
 describe("Stakied Oracle Tests", () => {
     describe("Read-Only Functions", () => {
@@ -62,7 +61,7 @@ describe("Stakied Oracle Tests", () => {
 
             const update = simnet.callPublicFn("stakied-oracle", "update-price",
                 [Cl.stringAscii("SY-STX"), Cl.uint(1500000)], wallet1);
-            expect(update.result).toBeOk(true);
+            expect(update.result).toBeOk(Cl.bool(true));
         });
 
         it("rejects excessive price deviation", () => {
@@ -83,7 +82,7 @@ describe("Stakied Oracle Tests", () => {
 
             const price = simnet.callReadOnlyFn("stakied-oracle", "get-price",
                 [Cl.stringAscii("SY-STX")], deployer);
-            expect(price.result).toBeOk(true);
+            expect(price.result).toBeOk(Cl.uint(250000000));
         });
 
         it("detects stale price", () => {
@@ -105,7 +104,7 @@ describe("Stakied Oracle Tests", () => {
 
             const price = simnet.callReadOnlyFn("stakied-oracle", "get-price-unsafe",
                 [Cl.stringAscii("CHECK")], deployer);
-            expect(price.result).toBeOk(true);
+            expect(price.result).toBeOk(Cl.uint(240000000));
         });
     });
 
