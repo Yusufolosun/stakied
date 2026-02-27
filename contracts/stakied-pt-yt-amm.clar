@@ -85,17 +85,17 @@
     (asserts! (is-none (map-get? pools maturity)) err-pool-already-exists)
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
-    (asserts! (> maturity block-height) err-invalid-maturity)
-    
-    ;; Transfer PT from user to AMM
-    (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
-    
-    ;; Transfer SY from user to AMM
-    (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+    (let ((user tx-sender))
+      ;; Transfer PT from user to AMM
+      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity user tx-sender)))
+      
+      ;; Transfer SY from user to AMM
+      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+    )
     
     ;; Calculate initial LP tokens (geometric mean)
     ;; LP = sqrt(PT * SY)
-    (let ((initial-lp (sqrti (* pt-amount sy-amount))))
+      (let ((initial-lp (sqrti (* pt-amount sy-amount))))
       (map-set pools maturity {
         pt-reserve: pt-amount,
         sy-reserve: sy-amount,
@@ -118,20 +118,22 @@
   )
 )
 
-;; Helper: Integer square root (Newton's method)
+;; Helper: Integer square root (Newton's method) - Unrolled for Clarity
 (define-private (sqrti (n uint))
   (if (<= n u1)
     n
-    (let ((x0 (/ n u2)))
-      (sqrti-iter n x0 (/ (+ x0 (/ n x0)) u2))
+    (let (
+      (x1 (/ (+ u1 n) u2))
+      (x2 (/ (+ x1 (/ n x1)) u2))
+      (x3 (/ (+ x2 (/ n x2)) u2))
+      (x4 (/ (+ x3 (/ n x3)) u2))
+      (x5 (/ (+ x4 (/ n x4)) u2))
+      (x6 (/ (+ x5 (/ n x5)) u2))
+      (x7 (/ (+ x6 (/ n x6)) u2))
+      (x8 (/ (+ x7 (/ n x7)) u2))
     )
-  )
-)
-
-(define-private (sqrti-iter (n uint) (x0 uint) (x1 uint))
-  (if (>= x1 x0)
-    x0
-    (sqrti-iter n x1 (/ (+ x1 (/ n x1)) u2))
+      (if (<= x8 x7) x8 x7)
+    )
   )
 )
 
@@ -157,7 +159,9 @@
       (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
       
       ;; Transfer SY from pool to user
-      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
+      (let ((sender tx-sender))
+        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+      )
       
       ;; Update pool reserves
       (map-set pools maturity {
@@ -179,8 +183,7 @@
   )
 )
 
-(define-private (get-sender)
-  (ok tx-sender))
+
 
 (define-read-only (quote-swap-pt-for-sy (pt-amount uint) (maturity uint))
   (let (
@@ -258,10 +261,14 @@
       (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
       
       ;; Transfer SY from user to pool
-      (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+      (let ((user tx-sender))
+        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
+      )
       
       ;; Transfer PT from pool to user
-      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
+      (let ((sender tx-sender))
+        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+      )
       
       ;; Update pool reserves
       (map-set pools maturity {
@@ -306,11 +313,13 @@
         (actual-pt (/ (* lp-out pt-reserve) total-lp))
         (actual-sy (/ (* lp-out sy-reserve) total-lp))
       )
-        ;; Transfer PT from user to pool
-        (try! (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
-        
-        ;; Transfer SY from user to pool
-        (try! (contract-call? .stakied-sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
+        (let ((user tx-sender))
+          ;; Transfer PT from user to pool
+          (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity user tx-sender)))
+          
+          ;; Transfer SY from user to pool
+          (try! (as-contract (contract-call? .stakied-sy-token transfer actual-sy user tx-sender none)))
+        )
         
         ;; Update pool state
         (map-set pools maturity {
@@ -370,10 +379,12 @@
       })
       
       ;; Transfer PT to user
-      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
-      
-      ;; Transfer SY to user
-      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
+      (let ((sender tx-sender))
+        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+        
+        ;; Transfer SY to user
+        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+      )
       
       (print {
         action: "remove-liquidity",
