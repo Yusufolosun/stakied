@@ -112,14 +112,14 @@
         (map-set lp-balances {user: tx-sender, maturity: maturity} initial-lp)
         
         (print {
-          action: "initialize-pool",
+          event: "initialize-pool",
           maturity: maturity,
           pt-amount: pt-amount,
           sy-amount: sy-amount,
-          lp-tokens: initial-lp
+          lp-tokens: initial-lp,
+          contract: (as-contract tx-sender)
         })
-        
-        (ok initial-lp)
+        (ok {lp-tokens: initial-lp, maturity: maturity})
       )
     )
   )
@@ -180,12 +180,14 @@
         })
         
         (print {
-          action: "swap-pt-for-sy",
+          event: "swap-pt-for-sy",
           pt-in: pt-amount,
           sy-out: sy-out,
-          maturity: maturity
+          maturity: maturity,
+          user: tx-sender,
+          contract: (as-contract tx-sender)
         })
-        (ok sy-out)
+        (ok {pt-in: pt-amount, sy-out: sy-out, maturity: maturity})
       )
     )
   )
@@ -286,12 +288,14 @@
         })
         
         (print {
-          action: "swap-sy-for-pt",
+          event: "swap-sy-for-pt",
           sy-in: sy-amount,
           pt-out: pt-out,
-          maturity: maturity
+          maturity: maturity,
+          user: tx-sender,
+          contract: (as-contract tx-sender)
         })
-        (ok pt-out)
+        (ok {sy-in: sy-amount, pt-out: pt-out, maturity: maturity})
       )
     )
   )
@@ -343,13 +347,15 @@
             )
             
             (print {
-              action: "add-liquidity",
+              event: "add-liquidity",
               pt-added: actual-pt,
               sy-added: actual-sy,
               lp-minted: lp-out,
-              maturity: maturity
+              maturity: maturity,
+              user: tx-sender,
+              contract: (as-contract tx-sender)
             })
-            (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
+            (ok {pt-added: actual-pt, sy-added: actual-sy, lp-minted: lp-out, maturity: maturity})
           )
         )
       )
@@ -401,13 +407,15 @@
           )
           
           (print {
-            action: "remove-liquidity",
+            event: "remove-liquidity",
             lp-burned: lp-amount,
             pt-returned: pt-out,
             sy-returned: sy-out,
-            maturity: maturity
+            maturity: maturity,
+            user: tx-sender,
+            contract: (as-contract tx-sender)
           })
-          (ok {pt: pt-out, sy: sy-out})
+          (ok {pt-returned: pt-out, sy-returned: sy-out, lp-burned: lp-amount, maturity: maturity})
         )
       )
     )
