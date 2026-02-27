@@ -4,16 +4,17 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u400))
-(define-constant err-not-authorized (err u401))
-(define-constant err-invalid-amount (err u402))
-(define-constant err-insufficient-balance (err u403))
-(define-constant err-lock-not-expired (err u404))
-(define-constant err-no-stake (err u405))
-(define-constant err-paused (err u406))
-(define-constant err-invalid-duration (err u407))
-(define-constant err-already-staked (err u408))
-(define-constant err-zero-rewards (err u409))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-lock-not-expired (err u400))    ;; Staking lock period not yet over
+(define-constant err-no-stake (err u401))           ;; User has no active stake
+(define-constant err-invalid-duration (err u402))    ;; Lock duration out of bounds
+(define-constant err-already-staked (err u403))     ;; User already has an active stake
+(define-constant err-zero-rewards (err u404))       ;; No rewards available to claim
 
 ;; Configuration
 (define-constant min-lock-duration u144)    ;; ~1 day in blocks
