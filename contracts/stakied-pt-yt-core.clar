@@ -15,7 +15,7 @@
 
 ;; Data variables
 (define-data-var is-paused bool false)
-(define-data-var sy-contract principal contract-owner)
+(define-data-var sy-contract principal tx-sender)
 
 ;; PT (Principal Token) data
 (define-map pt-balances {user: principal, maturity: uint} uint)
@@ -160,7 +160,7 @@
       maturity: maturity,
       contract: (as-contract tx-sender)
     })
-    (ok {amount: claimable, maturity: maturity})
+    (ok {amount: claimable, maturity: maturity}))
   )
 )
 
