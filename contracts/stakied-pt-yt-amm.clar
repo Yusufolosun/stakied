@@ -85,15 +85,11 @@
     (asserts! (is-none (map-get? pools maturity)) err-pool-already-exists)
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
-    (let ((user tx-sender))
-      (begin
-        ;; Transfer PT from user to AMM
-        (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity user tx-sender)))
-        
-        ;; Transfer SY from user to AMM
-        (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
-      )
-    )
+    ;; Transfer PT from user to AMM
+    (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
+    
+    ;; Transfer SY from user to AMM
+    (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
     
     ;; Calculate initial LP tokens (geometric mean)
     ;; LP = sqrt(PT * SY)
@@ -268,9 +264,7 @@
         (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
         
         ;; Transfer SY from user to pool
-        (let ((user tx-sender))
-          (try! (as-contract (contract-call? .stakied-sy-token transfer sy-amount user tx-sender none)))
-        )
+        (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
         
         ;; Transfer PT from pool to user
         (let ((sender tx-sender))
@@ -322,13 +316,11 @@
         (actual-sy (/ (* lp-out sy-reserve) total-lp))
       )
         (begin
-          (let ((user tx-sender))
-            ;; Transfer PT from user to pool
-            (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity user tx-sender)))
-            
-            ;; Transfer SY from user to pool
-            (try! (as-contract (contract-call? .stakied-sy-token transfer actual-sy user tx-sender none)))
-          )
+          ;; Transfer PT from user to pool
+          (try! (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
+          
+          ;; Transfer SY from user to pool
+          (try! (contract-call? .stakied-sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
           
           ;; Update pool state
           (map-set pools maturity {
