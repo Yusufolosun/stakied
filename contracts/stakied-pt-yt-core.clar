@@ -149,3 +149,11 @@
     )
   )
 )
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (ok true)
+  )
+)
