@@ -4,7 +4,8 @@
 (impl-trait .stakied-sip-010-trait.stakied-sip-010-trait)
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u100))
 (define-constant err-not-authorized (err u101))
 (define-constant err-invalid-amount (err u102))
@@ -97,10 +98,18 @@
 
 (define-public (update-exchange-rate (new-rate uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> new-rate u0) err-invalid-amount)
     (var-set exchange-rate new-rate)
     (var-set last-yield-update block-height)
+    (ok true)
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
     (ok true)
   )
 )
