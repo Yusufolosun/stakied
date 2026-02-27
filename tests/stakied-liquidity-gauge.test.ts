@@ -46,7 +46,10 @@ describe("Stakied Liquidity Gauge Tests", () => {
         it("stakes LP tokens successfully", () => {
             const stake = simnet.callPublicFn("stakied-liquidity-gauge", "stake-lp",
                 [Cl.uint(500000), Cl.uint(1000)], wallet1);
-            expect(stake.result).toBeOk(true);
+            expect(stake.result).toBeOk(Cl.tuple({
+                amount: Cl.uint(500000),
+                boost: Cl.uint(1000000)
+            }));
         });
 
         it("fails to stake zero amount", () => {
@@ -73,11 +76,17 @@ describe("Stakied Liquidity Gauge Tests", () => {
         it("multiple users can stake", () => {
             const stake1 = simnet.callPublicFn("stakied-liquidity-gauge", "stake-lp",
                 [Cl.uint(500000), Cl.uint(1000)], wallet1);
-            expect(stake1.result).toBeOk(true);
+            expect(stake1.result).toBeOk(Cl.tuple({
+                amount: Cl.uint(500000),
+                boost: Cl.uint(1000000)
+            }));
 
             const stake2 = simnet.callPublicFn("stakied-liquidity-gauge", "stake-lp",
                 [Cl.uint(300000), Cl.uint(1000)], wallet2);
-            expect(stake2.result).toBeOk(true);
+            expect(stake2.result).toBeOk(Cl.tuple({
+                amount: Cl.uint(300000),
+                boost: Cl.uint(1000000)
+            }));
         });
     });
 
@@ -138,7 +147,7 @@ describe("Stakied Liquidity Gauge Tests", () => {
 
             const earned = simnet.callReadOnlyFn("stakied-liquidity-gauge", "get-earned",
                 [Cl.principal(wallet1)], deployer);
-            expect(earned.result).toBeOk(true);
+            expect(earned.result).toBeOk(Cl.uint(10000));
         });
     });
 
@@ -152,7 +161,7 @@ describe("Stakied Liquidity Gauge Tests", () => {
 
             const boost = simnet.callReadOnlyFn("stakied-liquidity-gauge", "get-boost-factor",
                 [Cl.principal(wallet1)], deployer);
-            expect(boost.result).toBeOk(true);
+            expect(boost.result).toBeOk(Cl.uint(1000000));
         });
 
         it("non-owner cannot set governance balance", () => {
