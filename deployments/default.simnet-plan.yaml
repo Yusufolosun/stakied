@@ -64,23 +64,53 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
-            contract-name: pt-yt-core
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\pt-yt-core.clar"
-            clarity-version: 4
-        - emulated-contract-publish:
             contract-name: sip-010-trait
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: "contracts\\traits\\sip-010-trait.clar"
             clarity-version: 4
         - emulated-contract-publish:
-            contract-name: sy-token
+            contract-name: stakied-fee-vault
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\sy-token.clar"
+            path: "contracts\\stakied-fee-vault.clar"
             clarity-version: 4
         - emulated-contract-publish:
-            contract-name: pt-yt-amm
+            contract-name: stakied-governance
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: "contracts\\pt-yt-amm.clar"
+            path: "contracts\\stakied-governance.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-liquidity-gauge
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-liquidity-gauge.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-oracle
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-oracle.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-pt-yt-core
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-pt-yt-core.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-sy-token
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-sy-token.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-pt-yt-amm
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-pt-yt-amm.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-rewards-distributor
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-rewards-distributor.clar"
+            clarity-version: 4
+        - emulated-contract-publish:
+            contract-name: stakied-staking-pool
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: "contracts\\stakied-staking-pool.clar"
             clarity-version: 4
       epoch: "3.3"
