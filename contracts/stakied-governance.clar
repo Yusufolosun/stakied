@@ -141,7 +141,7 @@
       id: new-id,
       proposer: tx-sender,
       title: title,
-      contract: (as-contract <SAME>)
+      contract: (as-contract tx-sender)
     })
     (ok {proposal-id: new-id, proposer: tx-sender})
   )
