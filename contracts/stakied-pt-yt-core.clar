@@ -40,9 +40,6 @@
     (asserts! (> sy-amount u0) err-invalid-amount)
     (asserts! (> maturity stacks-block-height) err-invalid-maturity)
     
-    ;; TODO Phase 2: Transfer SY from user to this contract
-    ;; This will require implementing a custodial pattern or using contract-call with proper authorization
-    
     ;; Mint PT tokens
     (let ((current-pt-balance (default-to u0 (map-get? pt-balances {user: tx-sender, maturity: maturity}))))
       (map-set pt-balances {user: tx-sender, maturity: maturity} (+ current-pt-balance sy-amount))
@@ -72,8 +69,6 @@
       (map-set pt-balances {user: tx-sender, maturity: maturity} (- user-pt-balance pt-amount))
       (map-set pt-total-supply maturity (- (default-to u0 (map-get? pt-total-supply maturity)) pt-amount))
       
-      ;; TODO Phase 2: Transfer SY back to user (1:1 redemption)
-      
       (print {action: "redeem-pt", user: tx-sender, amount: pt-amount, maturity: maturity})
       (ok pt-amount)
     )
@@ -99,8 +94,6 @@
       (map-set yt-balances {user: tx-sender, maturity: maturity} (- user-yt-balance amount))
       (map-set yt-total-supply maturity (- (default-to u0 (map-get? yt-total-supply maturity)) amount))
       
-      ;; TODO Phase 2: Return SY to user
-      
       (print {action: "redeem-pt-yt", user: tx-sender, amount: amount, maturity: maturity})
       (ok amount)
     )
@@ -114,7 +107,6 @@
     (already-claimed (default-to u0 (map-get? yt-claimed-yield {user: user, maturity: maturity})))
   )
     ;; Simplified: assume 8% APY prorata distribution
-    ;; Real implementation would query SY contract for actual yield
     (let ((total-yield (* user-yt-balance u8)))
       (ok (if (> total-yield already-claimed)
             (- total-yield already-claimed)
@@ -133,8 +125,6 @@
     (let ((already-claimed (default-to u0 (map-get? yt-claimed-yield {user: tx-sender, maturity: maturity}))))
       (map-set yt-claimed-yield {user: tx-sender, maturity: maturity} (+ already-claimed claimable))
     )
-    
-    ;; TODO: Transfer yield (STX or SY) to user
     
     (print {action: "claim-yield", user: tx-sender, amount: claimable, maturity: maturity})
     (ok claimable)

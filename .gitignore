@@ -1,15 +1,46 @@
+# === Clarinet Settings (contain wallet mnemonics) ===
 **/settings/Mainnet.toml
 **/settings/Testnet.toml
+
+# === SECURITY: Private Keys, Mnemonics & Wallet Files ===
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+**/wallet.json
+**/keyfile.json
+*mnemonic*
+*seed-phrase*
+*private-key*
+*secret-key*
+
+# === Environment Files ===
 .env
 .env.*
 *.env
-.cache/**
-history.txt
 
+# === Deployment Scripts (temporary, out of scope) ===
+tmp-deploy/
+**/tmp-deploy/**
+
+# === Cache & Build ===
+.cache/**
+node_modules
+coverage
+costs-reports.json
+
+# === Logs ===
 logs
 *.log
 npm-debug.log*
-coverage
+history.txt
 *.info
-costs-reports.json
-node_modules
+test-results.log
+
+# === IDE & OS Artifacts ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

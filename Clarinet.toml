@@ -9,30 +9,42 @@ cache_dir = "./.cache"
 path = "contracts/traits/sip-010-trait.clar"
 epoch = "latest"
 
-[contracts.sy-token]
-path = "contracts/sy-token.clar"
+[contracts.stakied-sy-token]
+path = "contracts/stakied-sy-token.clar"
 epoch = "latest"
 
-[contracts.pt-yt-core]
-path = "contracts/pt-yt-core.clar"
+[contracts.stakied-pt-yt-core]
+path = "contracts/stakied-pt-yt-core.clar"
 epoch = "latest"
 
-[contracts.pt-yt-amm]
-path = "contracts/pt-yt-amm.clar"
+[contracts.stakied-pt-yt-amm]
+path = "contracts/stakied-pt-yt-amm.clar"
 epoch = "latest"
 
-# [contracts.counter]
-# path = "contracts/counter.clar"
-# epoch = "latest"
+[contracts.stakied-staking-pool]
+path = "contracts/stakied-staking-pool.clar"
+epoch = "latest"
+
+[contracts.stakied-fee-vault]
+path = "contracts/stakied-fee-vault.clar"
+epoch = "latest"
+
+[contracts.stakied-oracle]
+path = "contracts/stakied-oracle.clar"
+epoch = "latest"
+
+[contracts.stakied-governance]
+path = "contracts/stakied-governance.clar"
+epoch = "latest"
+
+[contracts.stakied-rewards-distributor]
+path = "contracts/stakied-rewards-distributor.clar"
+epoch = "latest"
+
+[contracts.stakied-liquidity-gauge]
+path = "contracts/stakied-liquidity-gauge.clar"
+epoch = "latest"
 
 [repl.analysis]
 passes = ["check_checker"]
 check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
-
-# Check-checker settings:
-# trusted_sender: if true, inputs are trusted after tx_sender has been checked.
-# trusted_caller: if true, inputs are trusted after contract-caller has been checked.
-# callee_filter: if true, untrusted data may be passed into a private function without a
-# warning, if it gets checked inside. This check will also propagate up to the
-# caller.
-# More informations: https://www.hiro.so/blog/new-safety-checks-in-clarinet

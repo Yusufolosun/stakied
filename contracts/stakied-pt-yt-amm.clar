@@ -56,8 +56,6 @@
       (blocks-to-maturity (- maturity block-height))
       (total-blocks maturity)
     )
-      ;; t = (current_block) / (maturity_block)
-      ;; Return as fixed-point with 6 decimals
       (if (is-eq total-blocks u0)
         u0
         (/ (* (- maturity blocks-to-maturity) precision) total-blocks)
@@ -77,7 +75,7 @@
     (asserts! (> sy-reserve u0) err-zero-reserves)
     
     ;; Simplified spot price: (SY_reserve / PT_reserve) * precision
-    ;; As t→1, price→1:1
+    ;; As t->1, price->1:1
     (ok (/ (* sy-reserve precision) pt-reserve))
   )
 )
@@ -90,10 +88,10 @@
     (asserts! (> maturity block-height) err-invalid-maturity)
     
     ;; Transfer PT from user to AMM
-    (try! (contract-call? .pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
+    (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
     
     ;; Transfer SY from user to AMM
-    (try! (contract-call? .sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+    (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
     
     ;; Calculate initial LP tokens (geometric mean)
     ;; LP = sqrt(PT * SY)
@@ -148,8 +146,6 @@
     (asserts! (> sy-reserve u0) err-zero-reserves)
     
     ;; Calculate swap output using constant product formula
-    ;; sy_out = (sy_reserve * pt_amount) / (pt_reserve + pt_amount)
-    ;; Apply fee: pt_after_fee = pt_amount * (10000 - 30) / 10000
     (let (
       (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
       (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
@@ -158,10 +154,10 @@
       (asserts! (< sy-out sy-reserve) err-insufficient-liquidity)
       
       ;; Transfer PT from user to pool
-      (try! (contract-call? .pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
+      (try! (contract-call? .stakied-pt-yt-core transfer-pt pt-amount maturity tx-sender (as-contract tx-sender)))
       
       ;; Transfer SY from pool to user
-      (try! (as-contract (contract-call? .sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
+      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
       
       ;; Update pool reserves
       (map-set pools maturity {
@@ -254,8 +250,6 @@
     (asserts! (> sy-reserve u0) err-zero-reserves)
     
     ;; Calculate swap output
-    ;; pt_out = (pt_reserve * sy_amount) / (sy_reserve + sy_amount)
-    ;; Apply fee
     (let (
       (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
       (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
@@ -264,10 +258,10 @@
       (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
       
       ;; Transfer SY from user to pool
-      (try! (contract-call? .sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
+      (try! (contract-call? .stakied-sy-token transfer sy-amount tx-sender (as-contract tx-sender) none))
       
       ;; Transfer PT from pool to user
-      (try! (as-contract (contract-call? .pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
+      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
       
       ;; Update pool reserves
       (map-set pools maturity {
@@ -299,8 +293,7 @@
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
     
-    ;; Calculate LP tokens to mint (proportional to liquidity added)
-    ;; lp_out = min((pt_amount * total_lp / pt_reserve), (sy_amount * total_lp / sy_reserve))
+    ;; Calculate LP tokens to mint
     (let (
       (lp-from-pt (/ (* pt-amount total-lp) pt-reserve))
       (lp-from-sy (/ (* sy-amount total-lp) sy-reserve))
@@ -308,16 +301,16 @@
     )
       (asserts! (>= lp-out min-lp-out) err-slippage-exceeded)
       
-      ;; Calculate actual amounts to deposit (may be less than specified to maintain ratio)
+      ;; Calculate actual amounts to deposit
       (let (
         (actual-pt (/ (* lp-out pt-reserve) total-lp))
         (actual-sy (/ (* lp-out sy-reserve) total-lp))
       )
         ;; Transfer PT from user to pool
-        (try! (contract-call? .pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
+        (try! (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
         
         ;; Transfer SY from user to pool
-        (try! (contract-call? .sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
+        (try! (contract-call? .stakied-sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
         
         ;; Update pool state
         (map-set pools maturity {
@@ -358,8 +351,6 @@
     (asserts! (>= user-lp lp-amount) err-insufficient-balance)
     
     ;; Calculate amounts to return
-    ;; pt_out = (lp_amount * pt_reserve) / total_lp
-    ;; sy_out = (lp_amount * sy_reserve) / total_lp
     (let (
       (pt-out (/ (* lp-amount pt-reserve) total-lp))
       (sy-out (/ (* lp-amount sy-reserve) total-lp))
@@ -379,10 +370,10 @@
       })
       
       ;; Transfer PT to user
-      (try! (as-contract (contract-call? .pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
+      (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender (unwrap-panic (get-sender)))))
       
       ;; Transfer SY to user
-      (try! (as-contract (contract-call? .sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
+      (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender (unwrap-panic (get-sender)) none)))
       
       (print {
         action: "remove-liquidity",
@@ -394,62 +385,5 @@
       
       (ok {pt: pt-out, sy: sy-out})
     )
-  )
-)
-
-(define-read-only (quote-swap-pt-for-sy (pt-amount uint) (maturity uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-  )
-    (asserts! (> pt-amount u0) err-invalid-amount)
-    
-    (let (
-      (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
-      (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
-    )
-      (ok {
-        sy-out: sy-out,
-        price-impact: (/ (* (- sy-reserve (- sy-reserve sy-out)) precision) sy-reserve),
-        fee: (- pt-amount pt-after-fee)
-      })
-    )
-  )
-)
-
-(define-read-only (quote-swap-sy-for-pt (sy-amount uint) (maturity uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-  )
-    (asserts! (> sy-amount u0) err-invalid-amount)
-    
-    (let (
-      (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
-      (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
-    )
-      (ok {
-        pt-out: pt-out,
-        price-impact: (/ (* (- pt-reserve (- pt-reserve pt-out)) precision) pt-reserve),
-        fee: (- sy-amount sy-after-fee)
-      })
-    )
-  )
-)
-
-(define-read-only (get-pool-stats (maturity uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-  )
-    (ok {
-      pt-reserve: (get pt-reserve pool-data),
-      sy-reserve: (get sy-reserve pool-data),
-      total-lp-supply: (get total-lp-supply pool-data),
-      last-update: (get last-update pool-data),
-      spot-price: (unwrap-panic (get-spot-price maturity)),
-      time-to-maturity: (if (> maturity block-height) (- maturity block-height) u0)
-    })
   )
 )

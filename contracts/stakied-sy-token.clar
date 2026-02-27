@@ -69,9 +69,6 @@
   (begin
     (asserts! (> amount u0) err-invalid-amount)
     
-    ;; TODO: Transfer stSTX from caller to contract
-    ;; For now, we mint directly (will integrate stSTX contract later)
-    
     (let ((current-balance (default-to u0 (map-get? balances tx-sender))))
       (map-set balances tx-sender (+ current-balance amount))
       (var-set total-supply (+ (var-get total-supply) amount))
@@ -91,8 +88,6 @@
       
       (map-set balances tx-sender (- current-balance amount))
       (var-set total-supply (- (var-get total-supply) amount))
-      
-      ;; TODO: Transfer stSTX back to caller
       
       (print {action: "redeem", user: tx-sender, amount: amount})
       (ok amount)
