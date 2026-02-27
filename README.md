@@ -149,7 +149,7 @@ stakied/
 │   ├── pt-yt-core.clar            # PT/YT minting/redemption
 │   ├── pt-yt-amm.clar             # AMM with time-decay (Phase 2)
 │   └── traits/
-│       └── sip-010-trait.clar     # Fungible token trait
+│       └── stakied-sip-010-trait.clar     # Fungible token trait
 ├── tests/
 │   ├── sy-token.test.ts           # SY tests
 │   ├── pt-yt-core.test.ts         # PT/YT tests

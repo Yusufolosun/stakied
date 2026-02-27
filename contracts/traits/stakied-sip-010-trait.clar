@@ -1,4 +1,4 @@
-(define-trait sip-010-trait
+(define-trait stakied-sip-010-trait
   (
     ;; Transfer from sender to recipient
     (transfer (uint principal principal (optional (buff 34))) (response bool uint))

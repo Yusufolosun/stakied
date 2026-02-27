@@ -9,24 +9,73 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
-            contract-name: pt-yt-core
+            contract-name: stakied-fee-vault
             expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
-            cost: 58700
-            path: "contracts\\pt-yt-core.clar"
+            cost: 3773518
+            path: "contracts\\stakied-fee-vault.clar"
             anchor-block-only: true
-            clarity-version: 4
+            clarity-version: 2
         - contract-publish:
-            contract-name: sip-010-trait
+            contract-name: stakied-governance
             expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
-            cost: 6470
-            path: "contracts\\traits\\sip-010-trait.clar"
+            cost: 3775979
+            path: "contracts\\stakied-governance.clar"
             anchor-block-only: true
-            clarity-version: 4
+            clarity-version: 2
         - contract-publish:
-            contract-name: sy-token
+            contract-name: stakied-liquidity-gauge
             expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
-            cost: 35090
-            path: "contracts\\sy-token.clar"
+            cost: 3783362
+            path: "contracts\\stakied-liquidity-gauge.clar"
             anchor-block-only: true
-            clarity-version: 4
-      epoch: "3.3"
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-oracle
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3772902
+            path: "contracts\\stakied-oracle.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-pt-yt-core
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3775363
+            path: "contracts\\stakied-pt-yt-core.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-sip-010-trait
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3759366
+            path: "contracts\\traits\\stakied-sip-010-trait.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-sy-token
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3767365
+            path: "contracts\\stakied-sy-token.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-pt-yt-amm
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3796283
+            path: "contracts\\stakied-pt-yt-amm.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-rewards-distributor
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3774748
+            path: "contracts\\stakied-rewards-distributor.clar"
+            anchor-block-only: true
+            clarity-version: 2
+        - contract-publish:
+            contract-name: stakied-staking-pool
+            expected-sender: ST1M46W6CVGAMH3ZJD3TKMY5KCY48HWAZK1GA0CF0
+            cost: 3774133
+            path: "contracts\\stakied-staking-pool.clar"
+            anchor-block-only: true
+            clarity-version: 2
+      epoch: "2.4"

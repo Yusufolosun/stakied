@@ -223,7 +223,7 @@ Assuming STX price and gas costs:
 
 ### Deployment Gas Costs
 Based on testnet deployment:
-- **sip-010-trait.clar**: ~0.020 STX
+- **stakied-sip-010-trait.clar**: ~0.020 STX
 - **sy-token.clar**: ~0.040 STX  
 - **pt-yt-core.clar**: ~0.041 STX
 - **Total**: ~0.101 STX

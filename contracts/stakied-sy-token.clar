@@ -1,7 +1,7 @@
 ;; Stakied SY Token - Standardized Yield Wrapper
 ;; Wraps stSTX (liquid staked STX) into standardized yield-bearing token
 
-(impl-trait .sip-010-trait.sip-010-trait)
+(impl-trait .stakied-sip-010-trait.stakied-sip-010-trait)
 
 ;; Constants
 (define-constant contract-owner tx-sender)

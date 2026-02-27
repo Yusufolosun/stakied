@@ -5,8 +5,8 @@ authors = []
 telemetry = true
 cache_dir = "./.cache"
 
-[contracts.sip-010-trait]
-path = "contracts/traits/sip-010-trait.clar"
+[contracts.stakied-sip-010-trait]
+path = "contracts/traits/stakied-sip-010-trait.clar"
 epoch = "2.4"
 
 [contracts.stakied-sy-token]

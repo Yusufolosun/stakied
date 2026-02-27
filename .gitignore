@@ -23,6 +23,8 @@
 # === Deployment Scripts (temporary, out of scope) ===
 tmp-deploy/
 **/tmp-deploy/**
+deployments/
+**/deployments/**
 
 # === Cache & Build ===
 .cache/**
