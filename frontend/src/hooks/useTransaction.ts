@@ -1,45 +1,56 @@
-import { useState } from 'react'
-import { openContractCall } from '@stacks/connect'
-import { STACKS_MAINNET } from '@stacks/network'
-import type { ClarityValue } from '@stacks/transactions'
+import { useState } from 'react';
+import { openContractCall } from '@stacks/connect';
+import { STACKS_MAINNET, STACKS_TESTNET } from '@stacks/network';
+import type { ClarityValue, PostCondition } from '@stacks/transactions';
 
 interface TransactionOptions {
-  contractAddress: string
-  contractName: string
-  functionName: string
-  functionArgs: ClarityValue[]
+  contractAddress: string;
+  contractName: string;
+  functionName: string;
+  functionArgs: ClarityValue[];
+  postConditions?: PostCondition[];
+  onSuccess?: (txId: string) => void;
+  onError?: (error: string) => void;
 }
 
 export const useTransaction = () => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [txId, setTxId] = useState<string | null>(null)
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastTxId, setLastTxId] = useState<string | null>(null);
 
-  const executeTransaction = async (options: TransactionOptions) => {
-    setLoading(true)
-    setError(null)
-    
+  const execute = async (options: TransactionOptions) => {
+    setIsPending(true);
+    setError(null);
+
+    // Default to mainnet, but allow override via VITE_NETWORK env
+    const network = import.meta.env.VITE_NETWORK === 'testnet' ? STACKS_TESTNET : STACKS_MAINNET;
+
     try {
       await openContractCall({
-        network: STACKS_MAINNET,
+        network,
         contractAddress: options.contractAddress,
         contractName: options.contractName,
         functionName: options.functionName,
         functionArgs: options.functionArgs,
+        postConditions: options.postConditions,
         onFinish: (data) => {
-          setTxId(data.txId)
-          setLoading(false)
+          setLastTxId(data.txId);
+          setIsPending(false);
+          if (options.onSuccess) options.onSuccess(data.txId);
         },
         onCancel: () => {
-          setLoading(false)
-          setError('Transaction cancelled')
+          setIsPending(false);
+          setError('User cancelled transaction');
+          if (options.onError) options.onError('Cancelled');
         }
-      })
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Transaction failed')
-      setLoading(false)
+      const msg = err instanceof Error ? err.message : 'Transaction failed';
+      setError(msg);
+      setIsPending(false);
+      if (options.onError) options.onError(msg);
     }
-  }
+  };
 
-  return { executeTransaction, loading, error, txId }
-}
+  return { execute, isPending, error, lastTxId };
+};
