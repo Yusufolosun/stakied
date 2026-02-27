@@ -14,6 +14,11 @@
 (define-constant err-pool-already-exists (err u307))
 (define-constant err-zero-reserves (err u308))
 (define-constant err-invalid-maturity (err u309))
+(define-constant err-paused (err u310))
+
+;; Data variables
+(define-data-var is-paused bool false)
+
 
 ;; Fee configuration (in basis points: 30 = 0.3%)
 (define-constant swap-fee-bps u30)
@@ -83,6 +88,7 @@
 
 (define-public (initialize-pool (maturity uint) (pt-amount uint) (sy-amount uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-none (map-get? pools maturity)) err-pool-already-exists)
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
@@ -139,21 +145,21 @@
 )
 
 (define-public (swap-pt-for-sy (pt-amount uint) (maturity uint) (min-sy-out uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-  )
-    (asserts! (> pt-amount u0) err-invalid-amount)
-    (asserts! (> pt-reserve u0) err-zero-reserves)
-    (asserts! (> sy-reserve u0) err-zero-reserves)
-    
-    ;; Calculate swap output using constant product formula
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (let (
-      (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
-      (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
+      (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+      (pt-reserve (get pt-reserve pool-data))
+      (sy-reserve (get sy-reserve pool-data))
     )
-      (begin
+      (asserts! (> pt-amount u0) err-invalid-amount)
+      (asserts! (> pt-reserve u0) err-zero-reserves)
+      (asserts! (> sy-reserve u0) err-zero-reserves)
+      
+      (let (
+        (pt-after-fee (/ (* pt-amount (- fee-denominator swap-fee-bps)) fee-denominator))
+        (sy-out (/ (* sy-reserve pt-after-fee) (+ pt-reserve pt-after-fee)))
+      )
         (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
         (asserts! (< sy-out sy-reserve) err-insufficient-liquidity)
         
@@ -179,7 +185,6 @@
           sy-out: sy-out,
           maturity: maturity
         })
-        
         (ok sy-out)
       )
     )
@@ -246,21 +251,21 @@
 )
 
 (define-public (swap-sy-for-pt (sy-amount uint) (maturity uint) (min-pt-out uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-  )
-    (asserts! (> sy-amount u0) err-invalid-amount)
-    (asserts! (> pt-reserve u0) err-zero-reserves)
-    (asserts! (> sy-reserve u0) err-zero-reserves)
-    
-    ;; Calculate swap output
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (let (
-      (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
-      (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
+      (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+      (pt-reserve (get pt-reserve pool-data))
+      (sy-reserve (get sy-reserve pool-data))
     )
-      (begin
+      (asserts! (> sy-amount u0) err-invalid-amount)
+      (asserts! (> pt-reserve u0) err-zero-reserves)
+      (asserts! (> sy-reserve u0) err-zero-reserves)
+      
+      (let (
+        (sy-after-fee (/ (* sy-amount (- fee-denominator swap-fee-bps)) fee-denominator))
+        (pt-out (/ (* pt-reserve sy-after-fee) (+ sy-reserve sy-after-fee)))
+      )
         (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
         (asserts! (< pt-out pt-reserve) err-insufficient-liquidity)
         
@@ -286,7 +291,6 @@
           pt-out: pt-out,
           maturity: maturity
         })
-        
         (ok pt-out)
       )
     )
@@ -294,57 +298,59 @@
 )
 
 (define-public (add-liquidity (maturity uint) (pt-amount uint) (sy-amount uint) (min-lp-out uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-    (total-lp (get total-lp-supply pool-data))
-  )
-    (asserts! (> pt-amount u0) err-invalid-amount)
-    (asserts! (> sy-amount u0) err-invalid-amount)
-    
-    ;; Calculate LP tokens to mint
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (let (
-      (lp-from-pt (/ (* pt-amount total-lp) pt-reserve))
-      (lp-from-sy (/ (* sy-amount total-lp) sy-reserve))
-      (lp-out (if (< lp-from-pt lp-from-sy) lp-from-pt lp-from-sy))
+      (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+      (pt-reserve (get pt-reserve pool-data))
+      (sy-reserve (get sy-reserve pool-data))
+      (total-lp (get total-lp-supply pool-data))
     )
-      (asserts! (>= lp-out min-lp-out) err-slippage-exceeded)
+      (asserts! (> pt-amount u0) err-invalid-amount)
+      (asserts! (> sy-amount u0) err-invalid-amount)
       
-      ;; Calculate actual amounts to deposit
+      ;; Calculate LP tokens to mint
       (let (
-        (actual-pt (/ (* lp-out pt-reserve) total-lp))
-        (actual-sy (/ (* lp-out sy-reserve) total-lp))
+        (lp-from-pt (/ (* pt-amount total-lp) pt-reserve))
+        (lp-from-sy (/ (* sy-amount total-lp) sy-reserve))
+        (lp-out (if (< lp-from-pt lp-from-sy) lp-from-pt lp-from-sy))
       )
-        (begin
-          ;; Transfer PT from user to pool
-          (try! (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
-          
-          ;; Transfer SY from user to pool
-          (try! (contract-call? .stakied-sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
-          
-          ;; Update pool state
-          (map-set pools maturity {
-            pt-reserve: (+ pt-reserve actual-pt),
-            sy-reserve: (+ sy-reserve actual-sy),
-            total-lp-supply: (+ total-lp lp-out),
-            last-update: block-height
-          })
-          
-          ;; Mint LP tokens to user
-          (let ((current-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity}))))
-            (map-set lp-balances {user: tx-sender, maturity: maturity} (+ current-lp lp-out))
+        (asserts! (>= lp-out min-lp-out) err-slippage-exceeded)
+        
+        ;; Calculate actual amounts to deposit
+        (let (
+          (actual-pt (/ (* lp-out pt-reserve) total-lp))
+          (actual-sy (/ (* lp-out sy-reserve) total-lp))
+        )
+          (begin
+            ;; Transfer PT from user to pool
+            (try! (contract-call? .stakied-pt-yt-core transfer-pt actual-pt maturity tx-sender (as-contract tx-sender)))
+            
+            ;; Transfer SY from user to pool
+            (try! (contract-call? .stakied-sy-token transfer actual-sy tx-sender (as-contract tx-sender) none))
+            
+            ;; Update pool state
+            (map-set pools maturity {
+              pt-reserve: (+ pt-reserve actual-pt),
+              sy-reserve: (+ sy-reserve actual-sy),
+              total-lp-supply: (+ total-lp lp-out),
+              last-update: block-height
+            })
+            
+            ;; Mint LP tokens to user
+            (let ((current-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity}))))
+              (map-set lp-balances {user: tx-sender, maturity: maturity} (+ current-lp lp-out))
+            )
+            
+            (print {
+              action: "add-liquidity",
+              pt-added: actual-pt,
+              sy-added: actual-sy,
+              lp-minted: lp-out,
+              maturity: maturity
+            })
+            (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
           )
-          
-          (print {
-            action: "add-liquidity",
-            pt-added: actual-pt,
-            sy-added: actual-sy,
-            lp-minted: lp-out,
-            maturity: maturity
-          })
-          
-          (ok {pt: actual-pt, sy: actual-sy, lp: lp-out})
         )
       )
     )
@@ -352,55 +358,57 @@
 )
 
 (define-public (remove-liquidity (maturity uint) (lp-amount uint) (min-pt-out uint) (min-sy-out uint))
-  (let (
-    (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
-    (pt-reserve (get pt-reserve pool-data))
-    (sy-reserve (get sy-reserve pool-data))
-    (total-lp (get total-lp-supply pool-data))
-    (user-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity})))
-  )
-    (asserts! (> lp-amount u0) err-invalid-amount)
-    (asserts! (>= user-lp lp-amount) err-insufficient-balance)
-    
-    ;; Calculate amounts to return
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (let (
-      (pt-out (/ (* lp-amount pt-reserve) total-lp))
-      (sy-out (/ (* lp-amount sy-reserve) total-lp))
+      (pool-data (unwrap! (map-get? pools maturity) err-pool-not-initialized))
+      (pt-reserve (get pt-reserve pool-data))
+      (sy-reserve (get sy-reserve pool-data))
+      (total-lp (get total-lp-supply pool-data))
+      (user-lp (default-to u0 (map-get? lp-balances {user: tx-sender, maturity: maturity})))
     )
-      (begin
-        (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
-        (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
-        
-        ;; Burn LP tokens
-        (map-set lp-balances {user: tx-sender, maturity: maturity} (- user-lp lp-amount))
-        
-        ;; Update pool reserves
-        (map-set pools maturity {
-          pt-reserve: (- pt-reserve pt-out),
-          sy-reserve: (- sy-reserve sy-out),
-          total-lp-supply: (- total-lp lp-amount),
-          last-update: block-height
-        })
-        
-        ;; Transfer PT to user
-        (let ((sender tx-sender))
-          (begin
-            (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
-            
-            ;; Transfer SY to user
-            (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+      (asserts! (> lp-amount u0) err-invalid-amount)
+      (asserts! (>= user-lp lp-amount) err-insufficient-balance)
+      
+      ;; Calculate amounts to return
+      (let (
+        (pt-out (/ (* lp-amount pt-reserve) total-lp))
+        (sy-out (/ (* lp-amount sy-reserve) total-lp))
+      )
+        (begin
+          (asserts! (>= pt-out min-pt-out) err-slippage-exceeded)
+          (asserts! (>= sy-out min-sy-out) err-slippage-exceeded)
+          
+          ;; Burn LP tokens
+          (map-set lp-balances {user: tx-sender, maturity: maturity} (- user-lp lp-amount))
+          
+          ;; Update pool reserves
+          (map-set pools maturity {
+            pt-reserve: (- pt-reserve pt-out),
+            sy-reserve: (- sy-reserve sy-out),
+            total-lp-supply: (- total-lp lp-amount),
+            last-update: block-height
+          })
+          
+          ;; Transfer PT to user
+          (let ((sender tx-sender))
+            (begin
+              (try! (as-contract (contract-call? .stakied-pt-yt-core transfer-pt pt-out maturity tx-sender sender)))
+              
+              ;; Transfer SY to user
+              (try! (as-contract (contract-call? .stakied-sy-token transfer sy-out tx-sender sender none)))
+            )
           )
+          
+          (print {
+            action: "remove-liquidity",
+            lp-burned: lp-amount,
+            pt-returned: pt-out,
+            sy-returned: sy-out,
+            maturity: maturity
+          })
+          (ok {pt: pt-out, sy: sy-out})
         )
-        
-        (print {
-          action: "remove-liquidity",
-          lp-burned: lp-amount,
-          pt-returned: pt-out,
-          sy-returned: sy-out,
-          maturity: maturity
-        })
-        
-        (ok {pt: pt-out, sy: sy-out})
       )
     )
   )
@@ -408,8 +416,17 @@
 
 (define-public (transfer-ownership (new-owner principal))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (var-set contract-owner new-owner)
+    (ok true)
+  )
+)
+
+(define-public (set-paused (new-paused bool))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused new-paused)
     (ok true)
   )
 )
