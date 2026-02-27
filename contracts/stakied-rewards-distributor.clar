@@ -2,14 +2,15 @@
 ;; Distributes accumulated yield to YT holders across maturities
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u800))
 (define-constant err-not-authorized (err u801))
 (define-constant err-invalid-amount (err u802))
 (define-constant err-no-rewards (err u803))
 (define-constant err-invalid-maturity (err u804))
 (define-constant err-already-claimed (err u805))
-(define-constant err-distributor-paused (err u806))
+(define-constant err-paused (err u806))
 (define-constant err-no-supply (err u807))
 (define-constant err-epoch-not-ended (err u808))
 (define-constant err-invalid-epoch (err u809))
@@ -21,7 +22,7 @@
 (define-data-var total-distributed uint u0)
 (define-data-var current-epoch uint u0)
 (define-data-var epoch-length uint u1008) ;; ~7 days in blocks
-(define-data-var distributor-paused bool false)
+(define-data-var is-paused bool false)
 
 ;; Data maps - reward indices per maturity
 (define-map reward-indices
@@ -92,14 +93,14 @@
     total-distributed: (var-get total-distributed),
     current-epoch: (var-get current-epoch),
     epoch-length: (var-get epoch-length),
-    paused: (var-get distributor-paused)
+    is-paused: (var-get is-paused)
   }))
 
 ;; Public functions
 (define-public (distribute-rewards (maturity uint) (amount uint))
   (begin
-    (asserts! (not (var-get distributor-paused)) err-distributor-paused)
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (not (var-get is-paused)) err-paused)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> amount u0) err-invalid-amount)
     (asserts! (> maturity u0) err-invalid-maturity)
 
@@ -119,8 +120,14 @@
 
       (var-set total-distributed (+ (var-get total-distributed) amount))
 
-      (print {action: "distribute-rewards", maturity: maturity, amount: amount, new-index: new-index})
-      (ok new-index)
+      (print {
+        event: "distribute-rewards",
+        maturity: maturity,
+        amount: amount,
+        new-index: new-index,
+        contract: (as-contract tx-sender)
+      })
+      (ok {maturity: maturity, amount: amount, new-index: new-index})
     )
   )
 )
@@ -135,7 +142,7 @@
       {global-index: u0, total-rewards: u0, last-update: u0}
       (map-get? reward-indices maturity)))
   )
-    (asserts! (not (var-get distributor-paused)) err-distributor-paused)
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> pending u0) err-no-rewards)
 
     ;; Update user state
@@ -145,14 +152,21 @@
       claimed: (+ (get claimed user-state) pending)
     })
 
-    (print {action: "claim-user-rewards", user: tx-sender, maturity: maturity, amount: pending})
-    (ok pending)
+    (print {
+      event: "claim-user-rewards",
+      user: tx-sender,
+      maturity: maturity,
+      amount: pending,
+      contract: (as-contract tx-sender)
+    })
+    (ok {user: tx-sender, maturity: maturity, amount: pending})
   )
 )
 
 (define-public (create-epoch (amount uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (not (var-get is-paused)) err-paused)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> amount u0) err-invalid-amount)
 
     (let ((new-epoch (+ (var-get current-epoch) u1)))
@@ -165,27 +179,56 @@
 
       (var-set current-epoch new-epoch)
 
-      (print {action: "create-epoch", epoch: new-epoch, amount: amount})
-      (ok new-epoch)
+      (print {
+        event: "create-epoch",
+        epoch: new-epoch,
+        amount: amount,
+        contract: (as-contract tx-sender)
+      })
+      (ok {epoch: new-epoch, amount: amount})
     )
   )
 )
 
 (define-public (set-epoch-length (new-length uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> new-length u0) err-invalid-amount)
     (var-set epoch-length new-length)
-    (print {action: "set-epoch-length", length: new-length})
-    (ok new-length)
+    (print {
+      event: "set-epoch-length",
+      length: new-length,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-length: new-length})
   )
 )
 
-(define-public (set-distributor-paused (paused bool))
+(define-public (set-paused (paused bool))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-    (var-set distributor-paused paused)
-    (print {action: "set-distributor-paused", paused: paused})
-    (ok paused)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused paused)
+    (print {
+      event: "set-paused",
+      paused: paused,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {paused: paused})
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (print {
+      event: "transfer-ownership",
+      new-owner: new-owner,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-owner: new-owner})
   )
 )
