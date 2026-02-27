@@ -3,14 +3,15 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u200))
-(define-constant err-not-authorized (err u201))
-(define-constant err-invalid-amount (err u202))
-(define-constant err-insufficient-balance (err u203))
-(define-constant err-maturity-not-reached (err u204))
-(define-constant err-already-matured (err u205))
-(define-constant err-invalid-maturity (err u206))
-(define-constant err-paused (err u207))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-maturity-not-reached (err u200)) ;; Principal not yet redeemable
+(define-constant err-already-matured (err u201))      ;; Action not allowed after maturity
+(define-constant err-invalid-maturity (err u202))      ;; Provided maturity date is invalid
 
 ;; Data variables
 (define-data-var is-paused bool false)
