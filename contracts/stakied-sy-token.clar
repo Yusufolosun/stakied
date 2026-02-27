@@ -6,12 +6,13 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u100))
-(define-constant err-not-authorized (err u101))
-(define-constant err-invalid-amount (err u102))
-(define-constant err-insufficient-balance (err u103))
-(define-constant err-transfer-failed (err u104))
-(define-constant err-paused (err u105))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-transfer-failed (err u100))   ;; SIP-010 transfer did not succeed
 
 ;; Token metadata
 (define-constant token-name "Stakied Standardized Yield")
