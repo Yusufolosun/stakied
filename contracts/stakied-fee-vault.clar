@@ -22,7 +22,7 @@
 ;; Data variables
 (define-data-var total-fees-collected uint u0)
 (define-data-var total-fees-distributed uint u0)
-(define-data-var treasury-address principal contract-owner)
+(define-data-var treasury-address principal tx-sender)
 (define-data-var treasury-split-bps uint u5000) ;; 50% to treasury
 (define-data-var staker-split-bps uint u5000)   ;; 50% to stakers
 (define-data-var is-paused bool false)
