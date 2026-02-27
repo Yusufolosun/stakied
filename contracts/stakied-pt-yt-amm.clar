@@ -90,7 +90,7 @@
 (define-public (initialize-pool (maturity uint) (pt-amount uint) (sy-amount uint))
   (begin
     (asserts! (not (var-get is-paused)) err-paused)
-    (asserts! (is-none (map-get? pools maturity)) err-pool-already-exists)
+    (asserts! (is-none (map-get? pools maturity)) err-already-exists)
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (> sy-amount u0) err-invalid-amount)
     ;; Transfer PT from user to AMM
