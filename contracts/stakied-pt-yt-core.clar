@@ -56,8 +56,14 @@
       (map-set yt-total-supply maturity (+ (default-to u0 (map-get? yt-total-supply maturity)) sy-amount))
     )
     
-    (print {action: "mint-pt-yt", user: tx-sender, amount: sy-amount, maturity: maturity})
-    (ok {pt: sy-amount, yt: sy-amount})
+    (print {
+      event: "mint-pt-yt",
+      user: tx-sender,
+      amount: sy-amount,
+      maturity: maturity,
+      contract: (as-contract tx-sender)
+    })
+    (ok {pt-minted: sy-amount, yt-minted: sy-amount, maturity: maturity})
   )
 )
 
@@ -74,8 +80,14 @@
       (map-set pt-balances {user: tx-sender, maturity: maturity} (- user-pt-balance pt-amount))
       (map-set pt-total-supply maturity (- (default-to u0 (map-get? pt-total-supply maturity)) pt-amount))
       
-      (print {action: "redeem-pt", user: tx-sender, amount: pt-amount, maturity: maturity})
-      (ok pt-amount)
+      (print {
+        event: "redeem-pt",
+        user: tx-sender,
+        amount: pt-amount,
+        maturity: maturity,
+        contract: (as-contract tx-sender)
+      })
+      (ok {amount: pt-amount, maturity: maturity})
     )
   )
 )
@@ -100,8 +112,14 @@
       (map-set yt-balances {user: tx-sender, maturity: maturity} (- user-yt-balance amount))
       (map-set yt-total-supply maturity (- (default-to u0 (map-get? yt-total-supply maturity)) amount))
       
-      (print {action: "redeem-pt-yt", user: tx-sender, amount: amount, maturity: maturity})
-      (ok amount)
+      (print {
+        event: "redeem-pt-yt",
+        user: tx-sender,
+        amount: amount,
+        maturity: maturity,
+        contract: (as-contract tx-sender)
+      })
+      (ok {amount: amount, maturity: maturity})
     )
   )
 )
@@ -134,8 +152,14 @@
       (map-set yt-claimed-yield {user: tx-sender, maturity: maturity} (+ already-claimed claimable))
     )
     
-    (print {action: "claim-yield", user: tx-sender, amount: claimable, maturity: maturity})
-    (ok claimable)
+    (print {
+      event: "claim-yield",
+      user: tx-sender,
+      amount: claimable,
+      maturity: maturity,
+      contract: (as-contract tx-sender)
+    })
+    (ok {amount: claimable, maturity: maturity})
   )
 )
 
@@ -152,8 +176,15 @@
       (map-set pt-balances {user: recipient, maturity: maturity} 
         (+ (default-to u0 (map-get? pt-balances {user: recipient, maturity: maturity})) amount))
       
-      (print {action: "transfer-pt", sender: sender, recipient: recipient, amount: amount, maturity: maturity})
-      (ok true)
+      (print {
+        event: "transfer-pt",
+        sender: sender,
+        recipient: recipient,
+        amount: amount,
+        maturity: maturity,
+        contract: (as-contract tx-sender)
+      })
+      (ok {sender: sender, recipient: recipient, amount: amount, maturity: maturity})
     )
   )
 )
