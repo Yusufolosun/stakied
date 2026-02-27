@@ -2,13 +2,14 @@
 ;; LP stakers earn boosted rewards based on governance token balance
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u900))
 (define-constant err-not-authorized (err u901))
 (define-constant err-invalid-amount (err u902))
 (define-constant err-insufficient-balance (err u903))
 (define-constant err-no-stake (err u904))
-(define-constant err-gauge-paused (err u905))
+(define-constant err-paused (err u905))
 (define-constant err-invalid-rate (err u906))
 (define-constant err-no-rewards (err u907))
 (define-constant err-invalid-maturity (err u908))
@@ -25,7 +26,7 @@
 (define-data-var total-staked-lp uint u0)
 (define-data-var global-reward-per-token uint u0)
 (define-data-var last-update-block uint u0)
-(define-data-var gauge-paused bool false)
+(define-data-var is-paused bool false)
 (define-data-var total-boosted-supply uint u0)
 
 ;; Data maps
@@ -55,7 +56,7 @@
     total-boosted-supply: (var-get total-boosted-supply),
     global-reward-per-token: (var-get global-reward-per-token),
     last-update-block: (var-get last-update-block),
-    paused: (var-get gauge-paused)
+    is-paused: (var-get is-paused)
   }))
 
 (define-read-only (get-boost-factor (user principal))
@@ -141,7 +142,7 @@
 ;; Public functions
 (define-public (stake-lp (amount uint) (maturity uint))
   (begin
-    (asserts! (not (var-get gauge-paused)) err-gauge-paused)
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> amount u0) err-invalid-amount)
     (asserts! (> maturity u0) err-invalid-maturity)
 
@@ -183,15 +184,24 @@
         (var-set total-boosted-supply (+ (var-get total-boosted-supply) boosted-amount))
       )
 
-      (print {action: "stake-lp", user: tx-sender, amount: amount, boost: boost, boosted-amount: boosted-amount})
+      (print {
+        event: "stake-lp",
+        user: tx-sender,
+        amount: amount,
+        boost: boost,
+        boosted-amount: boosted-amount,
+        contract: (as-contract tx-sender)
+      })
       (ok {amount: amount, boost: boost})
     )
   )
 )
 
 (define-public (unstake-lp (amount uint))
-  (let (
-    (stake-data (unwrap! (map-get? lp-stakes tx-sender) err-no-stake))
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
+    (let (
+      (stake-data (unwrap! (map-get? lp-stakes tx-sender) err-no-stake))
     (staked (get amount stake-data))
   )
     (asserts! (> amount u0) err-invalid-amount)
@@ -222,15 +232,22 @@
 
       (var-set total-staked-lp (- (var-get total-staked-lp) amount))
 
-      (print {action: "unstake-lp", user: tx-sender, amount: amount})
-      (ok amount)
+      (print {
+        event: "unstake-lp",
+        user: tx-sender,
+        amount: amount,
+        contract: (as-contract tx-sender)
+      })
+      (ok {user: tx-sender, amount: amount})
     )
   )
 )
 
 (define-public (claim-gauge-rewards)
-  (let (
-    (stake-data (unwrap! (map-get? lp-stakes tx-sender) err-no-stake))
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
+    (let (
+      (stake-data (unwrap! (map-get? lp-stakes tx-sender) err-no-stake))
   )
     ;; Update rewards
     (update-rewards tx-sender)
@@ -246,15 +263,20 @@
         pending-rewards: u0
       }))
 
-      (print {action: "claim-gauge-rewards", user: tx-sender, amount: pending})
-      (ok pending)
+      (print {
+        event: "claim-gauge-rewards",
+        user: tx-sender,
+        amount: pending,
+        contract: (as-contract tx-sender)
+      })
+      (ok {user: tx-sender, amount: pending})
     )
   )
 )
 
 (define-public (set-emission-rate (new-rate uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (asserts! (> new-rate u0) err-invalid-rate)
 
     ;; Update global state before changing rate
@@ -262,25 +284,55 @@
     (var-set last-update-block block-height)
     (var-set emission-rate new-rate)
 
-    (print {action: "set-emission-rate", rate: new-rate})
-    (ok new-rate)
+    (print {
+      event: "set-emission-rate",
+      rate: new-rate,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-rate: new-rate})
   )
 )
 
 (define-public (set-governance-balance (user principal) (balance uint))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (map-set governance-balances user balance)
-    (print {action: "set-governance-balance", user: user, balance: balance})
-    (ok true)
+    (print {
+      event: "set-governance-balance",
+      user: user,
+      balance: balance,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {user: user, balance: balance})
   )
 )
 
-(define-public (set-gauge-paused (paused bool))
+(define-public (set-paused (paused bool))
   (begin
-    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-    (var-set gauge-paused paused)
-    (print {action: "set-gauge-paused", paused: paused})
-    (ok paused)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused paused)
+    (print {
+      event: "set-paused",
+      paused: paused,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {paused: paused})
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (print {
+      event: "transfer-ownership",
+      new-owner: new-owner,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-owner: new-owner})
   )
 )
