@@ -1,50 +1,86 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useContext } from 'react';
+import { uintCV, principalCV } from '@stacks/transactions';
+import { useTransaction } from './useTransaction';
+import { ContractContext } from '../context/ContractContext';
+import { STACKS_MAINNET, STACKS_TESTNET } from '@stacks/network';
 
-interface PoolData {
-  ptReserve: string
-  syReserve: string
-  totalLiquidity: string
-  apy: string
-  volume24h: string
-  fees24h: string
-}
+export const usePool = (userAddress: string | null) => {
+  const [stakedBalance, setStakedBalance] = useState<bigint>(0n);
+  const [isFetching, setIsFetching] = useState(false);
+  const { stakingPoolAddress } = useContext(ContractContext)!;
+  const { execute, isPending, error } = useTransaction();
 
-export const usePool = (poolId?: string) => {
-  const [poolData, setPoolData] = useState<PoolData>({
-    ptReserve: '0',
-    syReserve: '0',
-    totalLiquidity: '0',
-    apy: '0',
-    volume24h: '0',
-    fees24h: '0'
-  })
-  const [loading, setLoading] = useState(false)
+  const [contractAddress, contractName] = stakingPoolAddress.split('.');
+
+  const fetchStakedBalance = useCallback(async () => {
+    if (!userAddress) return;
+    setIsFetching(true);
+
+    const network = import.meta.env.VITE_NETWORK === 'testnet' ? STACKS_TESTNET : STACKS_MAINNET;
+    const apiUrl = network.coreApiUrl;
+
+    try {
+      // Fetching staked balance from the contract map
+      const response = await fetch(
+        `${apiUrl}/extended/v1/address/${stakingPoolAddress}/map_fetch`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            map_name: 'staker-info',
+            key: principalCV(userAddress)
+          })
+        }
+      );
+      // Parsing logic would go here in production
+      setStakedBalance(0n); // Placeholder for parsed value
+    } catch (err) {
+      console.error('Failed to fetch staked balance:', err);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [userAddress, stakingPoolAddress]);
 
   useEffect(() => {
-    if (poolId) {
-      fetchPoolData()
-    }
-  }, [poolId])
+    fetchStakedBalance();
+  }, [fetchStakedBalance]);
 
-  const fetchPoolData = async () => {
-    setLoading(true)
-    try {
-      // Fetch pool data from contract
-      // Placeholder logic
-      setPoolData({
-        ptReserve: '1000000',
-        syReserve: '1000000',
-        totalLiquidity: '2000000',
-        apy: '5.25',
-        volume24h: '50000',
-        fees24h: '500'
-      })
-    } catch (error) {
-      console.error('Failed to fetch pool data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const stake = async (amount: bigint) => {
+    await execute({
+      contractAddress,
+      contractName,
+      functionName: 'stake',
+      functionArgs: [uintCV(amount)],
+    });
+    fetchStakedBalance();
+  };
 
-  return { poolData, loading, refresh: fetchPoolData }
-}
+  const unstake = async (amount: bigint) => {
+    await execute({
+      contractAddress,
+      contractName,
+      functionName: 'unstake',
+      functionArgs: [uintCV(amount)],
+    });
+    fetchStakedBalance();
+  };
+
+  const claimRewards = async () => {
+    await execute({
+      contractAddress,
+      contractName,
+      functionName: 'claim-rewards',
+      functionArgs: [],
+    });
+  };
+
+  return {
+    stakedBalance,
+    stake,
+    unstake,
+    claimRewards,
+    isLoading: isPending || isFetching,
+    error,
+    refresh: fetchStakedBalance
+  };
+};
