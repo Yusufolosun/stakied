@@ -4,17 +4,18 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u700))
-(define-constant err-not-authorized (err u701))
-(define-constant err-invalid-amount (err u702))
-(define-constant err-proposal-not-found (err u703))
-(define-constant err-voting-closed (err u704))
-(define-constant err-already-voted (err u705))
-(define-constant err-quorum-not-met (err u706))
-(define-constant err-proposal-not-passed (err u707))
-(define-constant err-already-executed (err u708))
-(define-constant err-invalid-proposal (err u709))
-(define-constant err-paused (err u710))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-proposal-not-found (err u700)) ;; Governance proposal does not exist
+(define-constant err-voting-closed (err u701))      ;; Voting period has ended or not started
+(define-constant err-already-voted (err u702))      ;; User has already cast a vote
+(define-constant err-quorum-not-met (err u703))     ;; Not enough total votes to pass
+(define-constant err-proposal-not-passed (err u704)) ;; Majority 'Against' or failed status
+(define-constant err-already-executed (err u705))   ;; Proposal action already performed
+(define-constant err-invalid-proposal (err u706))   ;; Proposal state prevents this action
 
 ;; Configuration
 (define-constant voting-period u1008)      ;; ~7 days in blocks
