@@ -4,17 +4,18 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u300))
-(define-constant err-not-authorized (err u301))
-(define-constant err-invalid-amount (err u302))
-(define-constant err-insufficient-balance (err u303))
-(define-constant err-insufficient-liquidity (err u304))
-(define-constant err-slippage-exceeded (err u305))
-(define-constant err-pool-not-initialized (err u306))
-(define-constant err-pool-already-exists (err u307))
-(define-constant err-zero-reserves (err u308))
-(define-constant err-invalid-maturity (err u309))
-(define-constant err-paused (err u310))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-already-exists (err u6))      ;; Pool or resource already exists
+(define-constant err-insufficient-liquidity (err u300)) ;; Not enough liquidity for swap
+(define-constant err-slippage-exceeded (err u301))      ;; Swap output below user threshold
+(define-constant err-pool-not-initialized (err u302))   ;; Pool requires initialization
+(define-constant err-zero-reserves (err u303))          ;; Pool has zero reserves
+(define-constant err-invalid-maturity (err u304))       ;; Provided maturity date is invalid
 
 ;; Data variables
 (define-data-var is-paused bool false)
