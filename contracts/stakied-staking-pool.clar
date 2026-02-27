@@ -84,14 +84,14 @@
     ;; Record stake
     (map-set stakes tx-sender {
       amount: amount,
-      lock-until: (+ stacks-block-height lock-duration),
+      lock-until: (+ block-height lock-duration),
       reward-debt: (/ (* amount (var-get global-reward-index)) u1000000),
-      staked-at: stacks-block-height
+      staked-at: block-height
     })
 
     (var-set total-staked (+ (var-get total-staked) amount))
 
-    (print {action: "stake", user: tx-sender, amount: amount, lock-until: (+ stacks-block-height lock-duration)})
+    (print {action: "stake", user: tx-sender, amount: amount, lock-until: (+ block-height lock-duration)})
     (ok amount)
   )
 )
@@ -102,7 +102,7 @@
     (staked-amount (get amount stake-data))
     (lock-until (get lock-until stake-data))
   )
-    (asserts! (>= stacks-block-height lock-until) err-lock-not-expired)
+    (asserts! (>= block-height lock-until) err-lock-not-expired)
 
     ;; Claim any pending rewards first
     (update-reward-index)
@@ -169,17 +169,17 @@
   (let (
     (total (var-get total-staked))
     (last-block (var-get last-reward-block))
-    (blocks-elapsed (if (> stacks-block-height last-block)
-                       (- stacks-block-height last-block)
+    (blocks-elapsed (if (> block-height last-block)
+                       (- block-height last-block)
                        u0))
   )
     (if (and (> total u0) (> blocks-elapsed u0))
       (let ((new-rewards (* blocks-elapsed reward-rate-per-block)))
         (var-set global-reward-index 
           (+ (var-get global-reward-index) (/ (* new-rewards u1000000) total)))
-        (var-set last-reward-block stacks-block-height)
+        (var-set last-reward-block block-height)
       )
-      (var-set last-reward-block stacks-block-height)
+      (var-set last-reward-block block-height)
     )
   )
 )
