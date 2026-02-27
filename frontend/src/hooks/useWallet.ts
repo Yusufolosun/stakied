@@ -1,18 +1,10 @@
-import { useState } from 'react';
+import { useContext } from 'react';
+import { WalletContext } from '../context/WalletContext';
 
 export const useWallet = () => {
-  const [address, setAddress] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
-
-  const connect = async () => {
-    // Wallet connection logic
-    setConnected(true);
-  };
-
-  const disconnect = () => {
-    setAddress(null);
-    setConnected(false);
-  };
-
-  return { address, connected, connect, disconnect };
+  const context = useContext(WalletContext);
+  if (context === undefined) {
+    throw new Error('useWallet must be used within a WalletProvider');
+  }
+  return context;
 };
