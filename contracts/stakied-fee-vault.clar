@@ -4,16 +4,17 @@
 ;; Constants
 ;; Governance
 (define-data-var contract-owner principal tx-sender)
-(define-constant err-owner-only (err u500))
-(define-constant err-not-authorized (err u501))
-(define-constant err-invalid-amount (err u502))
-(define-constant err-insufficient-balance (err u503))
-(define-constant err-invalid-recipient (err u504))
-(define-constant err-paused (err u505))
-(define-constant err-invalid-split (err u506))
-(define-constant err-no-fees (err u507))
-(define-constant err-cooldown-active (err u508))
-(define-constant err-zero-address (err u509))
+;; Error Constants (Unified Schema)
+(define-constant err-owner-only (err u1))          ;; Unauthorized owner action
+(define-constant err-not-authorized (err u2))      ;; Action not allowed for caller
+(define-constant err-paused (err u3))              ;; Contract is currently paused
+(define-constant err-invalid-amount (err u4))      ;; Provided amount is zero or invalid
+(define-constant err-insufficient-balance (err u5)) ;; User balance below required amount
+(define-constant err-invalid-recipient (err u500))  ;; Recipient address is invalid or not set
+(define-constant err-invalid-split (err u501))      ;; Fee split percentages do not add up
+(define-constant err-no-fees (err u502))            ;; No fees available for distribution
+(define-constant err-cooldown-active (err u503))    ;; Must wait before next distribution
+(define-constant err-zero-address (err u504))       ;; Principal cannot be the zero address
 
 ;; Fee split: basis points out of 10000
 (define-constant bps-denominator u10000)
