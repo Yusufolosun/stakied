@@ -243,6 +243,7 @@
     )
   )
 )
+)
 
 (define-public (claim-gauge-rewards)
   (begin
@@ -273,6 +274,7 @@
       (ok {user: tx-sender, amount: pending})
     )
   )
+)
 )
 
 (define-public (set-emission-rate (new-rate uint))
