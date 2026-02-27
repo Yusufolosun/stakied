@@ -74,7 +74,9 @@
     (asserts! (is-none (map-get? stakes tx-sender)) err-already-staked)
 
     ;; Transfer SY tokens from user to this contract
-    (try! (contract-call? .stakied-sy-token transfer amount tx-sender (as-contract tx-sender) none))
+    (let ((user tx-sender))
+      (try! (as-contract (contract-call? .stakied-sy-token transfer amount user tx-sender none)))
+    )
 
     ;; Update global reward index before state changes
     (update-reward-index)
@@ -108,7 +110,9 @@
       (pending (unwrap-panic (get-pending-rewards tx-sender)))
     )
       ;; Transfer staked tokens back
-      (try! (as-contract (contract-call? .stakied-sy-token transfer staked-amount tx-sender (unwrap-panic (get-caller)) none)))
+      (let ((sender tx-sender))
+        (try! (as-contract (contract-call? .stakied-sy-token transfer staked-amount tx-sender sender none)))
+      )
 
       ;; Remove stake record
       (map-delete stakes tx-sender)
@@ -159,9 +163,7 @@
   )
 )
 
-;; Private helpers
-(define-private (get-caller)
-  (ok tx-sender))
+
 
 (define-private (update-reward-index)
   (let (
