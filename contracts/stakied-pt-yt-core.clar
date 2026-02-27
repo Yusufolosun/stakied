@@ -10,8 +10,10 @@
 (define-constant err-maturity-not-reached (err u204))
 (define-constant err-already-matured (err u205))
 (define-constant err-invalid-maturity (err u206))
+(define-constant err-paused (err u207))
 
 ;; Data variables
+(define-data-var is-paused bool false)
 (define-data-var sy-contract principal contract-owner)
 
 ;; PT (Principal Token) data
@@ -38,6 +40,7 @@
 
 (define-public (mint-pt-yt (sy-amount uint) (maturity uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> sy-amount u0) err-invalid-amount)
     (asserts! (> maturity block-height) err-invalid-maturity)
     
@@ -60,6 +63,7 @@
 
 (define-public (redeem-matured-pt (pt-amount uint) (maturity uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> pt-amount u0) err-invalid-amount)
     (asserts! (>= block-height maturity) err-maturity-not-reached)
     
@@ -78,6 +82,7 @@
 
 (define-public (redeem-pt-yt (amount uint) (maturity uint))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (> amount u0) err-invalid-amount)
     
     (let (
@@ -117,9 +122,11 @@
 )
 
 (define-public (claim-yield (maturity uint))
-  (let (
-    (claimable (unwrap! (calculate-claimable-yield tx-sender maturity) err-invalid-amount))
-  )
+  (begin
+    (asserts! (not (var-get is-paused)) err-paused)
+    (let (
+      (claimable (unwrap! (calculate-claimable-yield tx-sender maturity) err-invalid-amount))
+    )
     (asserts! (> claimable u0) err-invalid-amount)
     
     ;; Update claimed amount
@@ -134,6 +141,7 @@
 
 (define-public (transfer-pt (amount uint) (maturity uint) (sender principal) (recipient principal))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-eq tx-sender sender) err-not-authorized)
     (asserts! (> amount u0) err-invalid-amount)
     
@@ -152,8 +160,17 @@
 
 (define-public (transfer-ownership (new-owner principal))
   (begin
+    (asserts! (not (var-get is-paused)) err-paused)
     (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
     (var-set contract-owner new-owner)
+    (ok true)
+  )
+)
+
+(define-public (set-paused (new-paused bool))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set is-paused new-paused)
     (ok true)
   )
 )
