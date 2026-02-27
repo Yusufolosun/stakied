@@ -2,7 +2,8 @@
 ;; Enables trading of Principal Tokens (PT) against SY tokens
 
 ;; Constants
-(define-constant contract-owner tx-sender)
+;; Governance
+(define-data-var contract-owner principal tx-sender)
 (define-constant err-owner-only (err u300))
 (define-constant err-not-authorized (err u301))
 (define-constant err-invalid-amount (err u302))
@@ -402,5 +403,13 @@
         (ok {pt: pt-out, sy: sy-out})
       )
     )
+  )
+)
+
+(define-public (transfer-ownership (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) err-owner-only)
+    (var-set contract-owner new-owner)
+    (ok true)
   )
 )
