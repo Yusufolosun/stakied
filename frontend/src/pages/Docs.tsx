@@ -1,55 +1,73 @@
-import React from 'react'
-import { Card } from '../components/common/Card'
+import React from 'react';
+import { Card } from '../components/common/Card';
+import { GradientText } from '../components/common/GradientText';
 
 export const Docs: React.FC = () => {
+  const sections = [
+    {
+      title: 'Introduction',
+      content: 'Stakied is a yield tokenization protocol that allows anyone to lock yield-bearing assets and split them into Principal Tokens (PT) and Yield Tokens (YT).'
+    },
+    {
+      title: 'Principal Tokens (PT)',
+      content: 'PT represents the principal of the underlying yield-bearing asset. It can be redeemed 1:1 for the underlying at maturity. PT effectively allows you to lock in a fixed yield.'
+    },
+    {
+      title: 'Yield Tokens (YT)',
+      content: 'YT represents the yield component of the underlying asset. Holders of YT stream all rewards from the underlying asset in real-time until maturity.'
+    },
+    {
+      title: 'Standardized Yield (SY)',
+      content: 'SY is a token standard that wraps various yield-bearing assets into a unified interface, making them compatible with the Stakied PT/YT engine.'
+    },
+  ];
+
   return (
-    <div className="docs-page">
-      <h1>Documentation</h1>
-      
-      <Card>
-        <h2>Getting Started</h2>
-        <p>Stakied Protocol enables yield trading on the Stacks blockchain.</p>
-        <ol>
-          <li>Connect your Stacks wallet</li>
-          <li>Deposit STX to mint SY tokens</li>
-          <li>Split SY into PT and YT tokens</li>
-          <li>Trade or hold to maturity</li>
-        </ol>
-      </Card>
+    <div className="max-w-4xl mx-auto space-y-12 animate-reveal">
+      <div className="text-center space-y-4">
+        <h1 className="text-5xl font-display uppercase tracking-tight">
+          Protocol <GradientText>Knowledge Base</GradientText>
+        </h1>
+        <p className="text-text-muted text-lg max-w-2xl mx-auto">
+          Deep dive into the architecture, mechanics, and strategies of the Stakied Protocol.
+        </p>
+      </div>
 
-      <Card>
-        <h2>SY Token</h2>
-        <p>Standardized Yield (SY) tokens represent your deposited assets earning yield.</p>
-        <h3>Functions:</h3>
-        <ul>
-          <li><code>deposit</code>: Deposit STX to receive SY tokens</li>
-          <li><code>redeem</code>: Burn SY tokens to withdraw your STX</li>
-          <li><code>get-balance</code>: Check your SY token balance</li>
-        </ul>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <aside className="md:col-span-1 space-y-4 sticky top-24">
+          <p className="text-[10px] text-text-dim uppercase font-bold tracking-widest pl-2">Navigation</p>
+          <nav className="space-y-1">
+            {sections.map(s => (
+              <a
+                key={s.title}
+                href={`#${s.title.toLowerCase()}`}
+                className="block px-3 py-2 text-sm text-text-muted hover:text-primary hover:bg-white/5 rounded-lg transition-all"
+              >
+                {s.title}
+              </a>
+            ))}
+          </nav>
+        </aside>
 
-      <Card>
-        <h2>PT/YT Tokens</h2>
-        <p>Principal Tokens (PT) and Yield Tokens (YT) split the value of SY tokens.</p>
-        <h3>Functions:</h3>
-        <ul>
-          <li><code>mint-pt-yt</code>: Split SY into PT and YT</li>
-          <li><code>redeem-pt</code>: Redeem PT for underlying after maturity</li>
-          <li><code>claim-yield</code>: Claim accumulated yield with YT</li>
-        </ul>
-      </Card>
-
-      <Card>
-        <h2>AMM</h2>
-        <p>Automated Market Maker for trading PT tokens.</p>
-        <h3>Functions:</h3>
-        <ul>
-          <li><code>add-liquidity</code>: Add PT/SY liquidity to pool</li>
-          <li><code>remove-liquidity</code>: Remove liquidity from pool</li>
-          <li><code>swap-pt-for-sy</code>: Swap PT tokens for SY</li>
-          <li><code>swap-sy-for-pt</code>: Swap SY tokens for PT</li>
-        </ul>
-      </Card>
+        <div className="md:col-span-3 space-y-12">
+          {sections.map((section, i) => (
+            <Card
+              key={section.title}
+              id={section.title.toLowerCase()}
+              className={`stagger-${(i % 4) + 1}`}
+            >
+              <h3 className="text-2xl font-display text-main mb-4">{section.title}</h3>
+              <p className="text-text-muted leading-relaxed">
+                {section.content}
+              </p>
+              <div className="mt-6 pt-6 border-t border-white/5 flex justify-between items-center text-xs">
+                <span className="text-text-dim">Last updated: Feb 2026</span>
+                <button className="text-primary hover:underline">Share link ↗</button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
