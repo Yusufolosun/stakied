@@ -62,8 +62,15 @@
       (map-set balances sender (- sender-balance amount))
       (map-set balances recipient (+ (default-to u0 (map-get? balances recipient)) amount))
       
-      (print {action: "transfer", sender: sender, recipient: recipient, amount: amount, memo: memo})
-      (ok true)
+      (print {
+        event: "transfer",
+        sender: sender,
+        recipient: recipient,
+        amount: amount,
+        memo: memo,
+        contract: (as-contract tx-sender)
+      })
+      (ok {sender: sender, recipient: recipient, amount: amount})
     )
   )
 )
@@ -77,8 +84,13 @@
       (map-set balances tx-sender (+ current-balance amount))
       (var-set total-supply (+ (var-get total-supply) amount))
       
-      (print {action: "deposit", user: tx-sender, amount: amount})
-      (ok amount)
+      (print {
+        event: "deposit",
+        user: tx-sender,
+        amount: amount,
+        contract: (as-contract tx-sender)
+      })
+      (ok {user: tx-sender, amount: amount})
     )
   )
 )
@@ -94,8 +106,13 @@
       (map-set balances tx-sender (- current-balance amount))
       (var-set total-supply (- (var-get total-supply) amount))
       
-      (print {action: "redeem", user: tx-sender, amount: amount})
-      (ok amount)
+      (print {
+        event: "redeem",
+        user: tx-sender,
+        amount: amount,
+        contract: (as-contract tx-sender)
+      })
+      (ok {user: tx-sender, amount: amount})
     )
   )
 )
@@ -106,7 +123,13 @@
     (asserts! (> new-rate u0) err-invalid-amount)
     (var-set exchange-rate new-rate)
     (var-set last-yield-update block-height)
-    (ok true)
+    (print {
+      event: "update-exchange-rate",
+      new-rate: new-rate,
+      updater: tx-sender,
+      contract: (as-contract tx-sender)
+    })
+    (ok {new-rate: new-rate})
   )
 )
 
