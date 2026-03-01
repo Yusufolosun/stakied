@@ -65,6 +65,28 @@ npm install
 npm run dev
 ```
 
+## 🌐 Live on Mainnet
+
+All 10 protocol contracts are deployed and confirmed on Stacks Mainnet.
+
+**Deployer:** `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z`  
+**Deployed:** March 1, 2026 | **Total cost:** 7.340450 STX
+
+| Contract | Address |
+|---|---|
+| stakied-sip-010-trait | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-sip-010-trait` |
+| stakied-sy-token | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-sy-token` |
+| stakied-pt-yt-core | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-pt-yt-core` |
+| stakied-pt-yt-amm | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-pt-yt-amm` |
+| stakied-staking-pool | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-staking-pool` |
+| stakied-governance | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-governance` |
+| stakied-fee-vault | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-fee-vault` |
+| stakied-oracle | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-oracle` |
+| stakied-rewards-distributor | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-rewards-distributor` |
+| stakied-liquidity-gauge | `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z.stakied-liquidity-gauge` |
+
+Full transaction IDs and explorer links → [`deployments/MAINNET_ADDRESSES.md`](deployments/MAINNET_ADDRESSES.md)
+
 ## 📖 Roadmap
 
 ### Phase 1: Core Protocol ✅
