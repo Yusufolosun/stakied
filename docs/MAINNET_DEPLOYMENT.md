@@ -1,13 +1,19 @@
 # Mainnet Deployment Guide
 
-## ⚠️ CRITICAL: Pre-Deployment Checklist
+> ✅ **DEPLOYMENT COMPLETE — March 1, 2026**  
+> All 10 contracts live. Deployer: `SP1N3809W9CBWWX04KN3TCQHP8A9GN520BD4JMP8Z`  
+> See [`deployments/MAINNET_ADDRESSES.md`](../deployments/MAINNET_ADDRESSES.md) for full contract addresses and TX IDs.
 
-- [ ] All tests passing on testnet
-- [ ] Security review completed
-- [ ] Gas optimization done
-- [ ] Documentation finalized
-- [ ] ~2-4 STX in mainnet wallet
-- [ ] Backup of deployment keys
+---
+
+## ✅ Pre-Deployment Checklist (Completed)
+
+- [x] All tests passing on testnet
+- [x] Security review completed
+- [x] Gas optimization done
+- [x] Documentation finalized
+- [x] STX funded in mainnet wallet
+- [x] Backup of deployment keys
 
 ## Prerequisites
 
@@ -82,12 +88,21 @@ If critical bug found:
 4. Test extensively on testnet
 5. Only then consider redeploying to mainnet
 
-## Cost Management
+## Cost Management — Actual Results
 
-Expected costs:
-- Phase 1 (SY + PT/YT): $0.29-$0.49
-- Buffer for fixes: $0.20
-- **Total budget:** $0.49-$0.69 ✅
+| Contract | Fee (STX) | Fee (USD) |
+|---|---|---|
+| stakied-fee-vault | 0.733958 | ~$0.19 |
+| stakied-governance | 0.734078 | ~$0.19 |
+| stakied-liquidity-gauge | 0.734438 | ~$0.19 |
+| stakied-oracle | 0.733928 | ~$0.19 |
+| stakied-pt-yt-core | 0.734048 | ~$0.19 |
+| stakied-sip-010-trait | 0.733268 | ~$0.19 |
+| stakied-sy-token | 0.733658 | ~$0.19 |
+| stakied-pt-yt-amm | 0.735068 | ~$0.19 |
+| stakied-rewards-distributor | 0.734018 | ~$0.19 |
+| stakied-staking-pool | 0.733988 | ~$0.19 |
+| **Total (10 contracts)** | **7.340450 STX** | **~$1.90** |
 
 ## Security Best Practices
 
